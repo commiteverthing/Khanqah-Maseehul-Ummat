@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khanqah Maseehul Ummat</title>
+  <meta name="description" content="Official website of Khanqah Maseehul Ummat - Spiritual guidance, Islamic education, and Sulook.">
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Favicon placeholder - replace images/logo.png with actual logo -->
+  <link rel="icon" type="image/png" href="images/logo.png">
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="https://w.soundcloud.com/player/api.js"></script>
+</head>
+<body>
+
+<div class="arabesque-bg"></div>
+
+<!-- ═══════════════════════ NAVBAR ═══════════════════════ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a class="nav-logo" href="#" onclick="showSection('home', null)">
+      <!-- Logo: place your logo as images/logo.png -->
+      <img src="images/logo.png" alt="Khanqah Maseehul Ummat"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+      <div class="nav-logo-placeholder" style="display:none">☽</div>
+      <div class="nav-logo-text">
+        <span class="main-name">Khanqah Maseehul Ummat</span>
+        <span class="sub-name">خانقاه مسیح الامت</span>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#" class="active" onclick="showSection('home', this)">Home</a></li>
+      <li><a href="#" onclick="showSection('notifications', this)">Notifications</a></li>
+      <li><a href="#" onclick="showSection('courses', this)">Courses</a></li>
+      <li><a href="#" onclick="showSection('audio', this)">Audio</a></li>
+      <li><a href="#" onclick="showSection('video', this)">Video</a></li>
+      <li><a href="#" onclick="showSection('qa', this)">Q &amp; A</a></li>
+      <li><a href="#" onclick="showSection('social', this)">Connect</a></li>
+    </ul>
+
+    <button class="nav-notify-btn" onclick="showSection('notifications', null)">
+      <i class="fas fa-bell" style="margin-right: 5px;"></i> Notifications
+
+      <span class="notify-badge" style="display:none">0</span>
+    </button>
+
+    <div class="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════ HOME ═══════════════════════ -->
+<section id="home" class="page-section active">
+  <div class="hero">
+    <div class="hero-ornament">✦ ✦ ✦</div>
+    <!-- Hero Image: place as images/hero.jpg or images/banner.jpg -->
+     <!-- <img src="images/hero.jpg" alt="Khanqah Maseehul Ummat"> -->
+    <div class="hero-arabic">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
+    <h1 class="hero-title">Khanqah Maseehul Ummat</h1>
+    <p class="hero-subtitle">خانقاه مسیح الامت</p>
+    <div class="hero-divider"></div>
+    <p class="hero-desc">
+      A center of spiritual purification, Islamic knowledge, and connection with Allah. 
+      Dedicated to the Islah of self and the elevation of the Ummah through the blessed path of Sulook and Tarbiyat.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num" id="stat-bayans">0</div>
+        <div class="stat-label">Audio Bayans</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat-videos">0</div>
+        <div class="stat-label">Video Lectures</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat-questions">0</div>
+        <div class="stat-label">Questions Asked</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat-answered">0</div>
+        <div class="stat-label">Answered</div>
+      </div>
+    </div>
+    <div class="hero-cta">
+      <button class="btn-primary" onclick="showSection('audio', null)"><i class="fas fa-headphones" style="margin-right: 8px;"></i> Listen to Bayans</button>
+      <button class="btn-outline" onclick="showSection('qa', null)"><i class="fas fa-circle-question" style="margin-right: 8px;"></i> Ask a Question</button>
+
+    </div>
+  </div>
+
+  <!-- Quick Features -->
+  <div class="content-wrap">
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap:1rem; margin-bottom:3rem;">
+      
+      <div class="action-card" onclick="showSection('notifications', null)">
+        <div class="action-icon"><i class="fas fa-bell"></i></div>
+        <h3>Notifications</h3>
+        <p>Latest announcements</p>
+      </div>
+      <div class="action-card" onclick="showSection('courses', null)">
+        <div class="action-icon"><i class="fas fa-book-open"></i></div>
+        <h3>Courses</h3>
+        <p>Enroll in programs</p>
+      </div>
+      <div class="action-card" onclick="showSection('audio', null)">
+        <div class="action-icon"><i class="fas fa-headphones"></i></div>
+        <h3>Audio Bayans</h3>
+        <p>Listen & benefit</p>
+      </div>
+      <div class="action-card" onclick="showSection('video', null)">
+        <div class="action-icon"><i class="fas fa-video"></i></div>
+        <h3>Videos</h3>
+        <p>YouTube channel</p>
+      </div>
+      <div class="action-card" onclick="showSection('qa', null)">
+        <div class="action-icon"><i class="fas fa-circle-question"></i></div>
+        <h3>Q & A</h3>
+        <p>Ask questions</p>
+      </div>
+      <div class="action-card" onclick="showSection('social', null)">
+        <div class="action-icon"><i class="fas fa-globe"></i></div>
+        <h3>Connect</h3>
+        <p>Follow us</p>
+      </div>
+
+    </div>
+
+    <!-- About -->
+    <div style="max-width:800px; margin:0 auto; text-align:center; padding:2rem 0 4rem; background:var(--white);">
+      <span class="section-tag">About the Khanqah</span>
+      <h2 class="section-title" style="margin-bottom:1rem">A Place of <span>Light & Guidance</span></h2>
+      <div class="section-line"></div>
+      <p style="font-size:1.05rem; color:var(--text-muted); line-height:1.9; margin-bottom:1rem; opacity:0.9;">
+        Khanqah Maseehul Ummat is a blessed center of Islah, Tarbiyat, and spiritual development. 
+        Under the guidance of our respected Shuyukh, this Khanqah serves as a place where hearts 
+        find peace, souls are purified, and the connection with Allah ﷻ is strengthened.
+      </p>
+      <p style="font-family:'Amiri',serif; font-size:1.5rem; color:var(--gold); margin-top:1.5rem; line-height:2;">
+        اللَّهُمَّ اجْعَلْنَا مِنَ الصَّالِحِينَ
+      </p>
+      <p style="font-size:0.85rem; color:var(--text-muted); opacity:0.7; font-style:italic; margin-top:0.3rem;">
+        "O Allah, make us among the righteous."
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ NOTIFICATIONS ═══════════════════════ -->
+<section id="notifications" class="page-section">
+  <div class="section-header">
+    <span class="section-tag">Updates</span>
+    <h2 class="section-title">Latest <span>Notifications</span></h2>
+    <div class="section-line"></div>
+    <p class="section-desc">Important announcements, upcoming events, and news from Khanqah Maseehul Ummat.</p>
+  </div>
+  <div class="content-wrap">
+    <div class="notifications-grid" id="notif-grid"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ COURSES ═══════════════════════ -->
+<section id="courses" class="page-section">
+  <div class="section-header">
+    <span class="section-tag">Education</span>
+    <h2 class="section-title">Islamic <span>Courses</span></h2>
+    <div class="section-line"></div>
+    <p class="section-desc">Enroll in our structured programs for Islamic knowledge and spiritual development.</p>
+  </div>
+  <div class="content-wrap">
+    <div class="courses-grid" id="courses-grid">
+      <!-- Courses will be loaded dynamically from MongoDB -->
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════ AUDIO ═══════════════════════ -->
+<section id="audio" class="page-section">
+  <div class="section-header">
+    <span class="section-tag">Library</span>
+    <h2 class="section-title">Audio <span>Bayans</span></h2>
+    <div class="section-line"></div>
+    <p class="section-desc">Listen to Islamic discourses and spiritual lectures from Khanqah Maseehul Ummat.</p>
+  </div>
+  <div class="content-wrap">
+    
+
+
+    <!-- Now Playing -->
+    <div class="now-playing" id="now-playing">
+      <span class="np-label">▶ Now Playing</span>
+      <div id="np-title" class="np-title">—</div>
+      <div id="np-category" class="np-category">—</div>
+      <div class="np-progress" onclick="seekAudio(event)">
+        <div class="np-bar" id="np-bar" style="width:0%"></div>
+      </div>
+      <div class="np-controls">
+        <button class="np-btn" onclick="prevBayan()">⏮</button>
+        <button class="np-btn play-btn" id="np-play-btn" onclick="togglePlay()">⏸</button>
+        <button class="np-btn" onclick="nextBayan()">⏭</button>
+        <span class="np-time" id="np-time">0:00 / 0:00</span>
+      </div>
+
+      <!-- Real Players -->
+      <audio id="main-audio-player" style="display:none"></audio>
+      <div id="embed-container" style="display:none; height:0; width:0; overflow:hidden;"></div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="audio-layout">
+      <div class="audio-sidebar">
+        <div class="sidebar-title">📂 Categories</div>
+        <ul class="category-list" id="cat-list"></ul>
+      </div>
+      <div class="audio-main">
+        <div class="bayan-list" id="bayan-list"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════ VIDEO ═══════════════════════ -->
+<section id="video" class="page-section">
+  <div class="section-header">
+    <span class="section-tag">Channel</span>
+    <h2 class="section-title">Video <span>Gallery</span></h2>
+    <div class="section-line"></div>
+    <p class="section-desc">Watch lectures and programmes from Khanqah Maseehul Ummat's YouTube channel.</p>
+  </div>
+  <div class="content-wrap">
+
+
+
+    <div class="videos-grid" id="videos-grid"></div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════ Q&A ═══════════════════════ -->
+<section id="qa" class="page-section">
+  <div class="section-header">
+    <span class="section-tag">Seek Knowledge</span>
+    <h2 class="section-title">Questions <span>&amp; Answers</span></h2>
+    <div class="section-line"></div>
+    <p class="section-desc">Ask your Islamic and spiritual questions. Your question will be automatically categorized and answered by the scholars of the Khanqah.</p>
+  </div>
+  <div class="content-wrap">
+    <div class="qa-layout">
+      <!-- Left: Ask + Questions -->
+      <div>
+        <!-- Ask Form -->
+        <div class="ask-form">
+          <div class="form-title">✍️ Submit Your Question</div>
+
+          <div class="form-row">
+            <label class="form-label">Your Name</label>
+            <input type="text" id="q-name" class="form-input" placeholder="e.g. Muhammad Ali">
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">Your Question</label>
+            <textarea id="q-text" class="form-textarea" placeholder="Write your Islamic or spiritual question here..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label">Category (optional — will be auto-detected)</label>
+            <select id="q-category" class="form-select">
+              <option value="">🤖 Auto-detect category</option>
+              <option>Tasawwuf</option>
+              <option>Ibaadat</option>
+              <option>Akhlaq</option>
+              <option>Quran</option>
+              <option>Fiqh</option>
+              <option>Islah</option>
+              <option>Ramadan</option>
+              <option>General</option>
+            </select>
+            <span class="auto-detect-badge" id="auto-cat-badge" style="display:none"></span>
+          </div>
+
+          <button class="btn-primary" onclick="submitQuestion()" style="width:100%; margin-top:0.5rem;">
+            Send Question →
+          </button>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="qa-filter-bar" id="qa-filter-bar"></div>
+
+        <!-- Questions List -->
+        <div id="qa-list"></div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="qa-sidebar">
+        <div class="qa-stats-card">
+          <div class="qa-stats-title">📊 Questions by Category</div>
+          <div id="qa-cat-stats"></div>
+        </div>
+
+        <div class="qa-stats-card">
+          <div class="qa-stats-title">ℹ️ Submission Guidelines</div>
+          <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.7; opacity:0.85;">
+            • Questions about Islam, Tasawwuf, and daily life<br>
+            • Be clear and specific in your question<br>
+            • Category is auto-detected by AI<br>
+            • Answers are provided by Khanqah scholars<br>
+            • Please be patient for responses<br><br>
+            <span style="color:var(--gold); font-family:'Amiri',serif; font-size:1.1rem;">طَلَبُ الْعِلْمِ فَرِيضَةٌ</span><br>
+            <em style="font-size:0.78rem;">Seeking knowledge is obligatory</em>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SOCIAL / CONNECT ═══════════════════════ -->
+<section id="social" class="page-section">
+  <div class="section-header">
+    <span class="section-tag">Stay Connected</span>
+    <h2 class="section-title">Follow &amp; <span>Connect</span></h2>
+    <div class="section-line"></div>
+    <p class="section-desc">Stay connected with Khanqah Maseehul Ummat on all platforms for daily reminders and updates.</p>
+  </div>
+  <div class="content-wrap">
+    <div class="social-grid">
+
+      <!-- Facebook -->
+      <a href="https://www.facebook.com/KhanqahMaseehulUmmat" target="_blank" class="social-card facebook">
+        <div class="social-icon">
+          <i class="fab fa-facebook-f" style="font-size: 3rem; color: white;"></i>
+        </div>
+        <div class="social-name">Facebook</div>
+        <div class="social-handle">Khanqah Maseehul Ummat</div>
+        <span class="social-btn">Follow Page</span>
+      </a>
+
+
+      <!-- Instagram -->
+      <a href="https://www.instagram.com/KhanqahMaseehulUmmat" target="_blank" class="social-card instagram">
+        <div class="social-icon">
+          <i class="fab fa-instagram" style="font-size: 3rem; color: white;"></i>
+        </div>
+        <div class="social-name">Instagram</div>
+        <div class="social-handle">@KhanqahMaseehulUmmat</div>
+        <span class="social-btn">Follow</span>
+      </a>
+
+
+      <!-- YouTube -->
+      <a href="https://www.youtube.com/@KhanqahMaseehulUmmat" target="_blank" class="social-card youtube">
+        <div class="social-icon">
+          <i class="fab fa-youtube" style="font-size: 3rem; color: white;"></i>
+        </div>
+        <div class="social-name">YouTube</div>
+        <div class="social-handle">Khanqah Maseehul Ummat</div>
+        <span class="social-btn">Subscribe</span>
+      </a>
+
+
+      <!-- WhatsApp -->
+      <a href="https://chat.whatsapp.com/KhanqahMaseehulUmmat" target="_blank" class="social-card whatsapp">
+        <div class="social-icon">
+          <i class="fab fa-whatsapp" style="font-size: 3rem; color: white;"></i>
+        </div>
+        <div class="social-name">WhatsApp</div>
+        <div class="social-handle">Join our Group</div>
+        <span class="social-btn">Join Group</span>
+      </a>
+
+
+    </div>
+
+    <!-- Newsletter Subscribe -->
+    <div style="max-width:600px; margin:3rem auto 0; background:var(--white); border:1px solid #E8E8E8; border-radius:10px; padding:2rem; text-align:center;">
+      <h3 style="font-family:'Cinzel',serif; color:var(--black); margin-bottom:0.5rem; font-weight:700;">📱 Get Notifications</h3>
+      <p style="font-size:0.9rem; color:var(--text-muted); opacity:0.85; margin-bottom:1.2rem; line-height:1.6;">
+        Subscribe to receive notifications about new bayans, upcoming events, and announcements.
+      </p>
+      <div style="display:flex; gap:0.8rem; max-width:400px; margin:0 auto;">
+        <input type="tel" placeholder="Your WhatsApp number" class="form-input" style="flex:1">
+        <button class="btn-primary" onclick="showBanner('Subscribed! JazakAllah Khair.')">Subscribe</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo-text">Khanqah Maseehul Ummat</div>
+        <div class="footer-tagline">خانقاه مسیح الامت</div>
+        <p class="footer-desc">
+          A blessed center of spiritual guidance, Islamic education, and connection with Allah ﷻ. 
+          May Allah accept our efforts and guide the Ummah.
+        </p>
+      </div>
+      <div>
+        <div class="footer-col-title">Quick Links</div>
+        <ul class="footer-links">
+          <li><a href="#" onclick="showSection('home', null)">Home</a></li>
+          <li><a href="#" onclick="showSection('notifications', null)">Notifications</a></li>
+          <li><a href="#" onclick="showSection('courses', null)">Courses</a></li>
+          <li><a href="#" onclick="showSection('audio', null)">Audio Bayans</a></li>
+          <li><a href="#" onclick="showSection('video', null)">Video Gallery</a></li>
+          <li><a href="#" onclick="showSection('qa', null)">Q &amp; A</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Connect</div>
+        <ul class="footer-links">
+          <li><a href="https://www.facebook.com/KhanqahMaseehulUmmat" target="_blank"><i class="fab fa-facebook-f" style="margin-right: 8px;"></i> Facebook</a></li>
+          <li><a href="https://www.instagram.com/KhanqahMaseehulUmmat" target="_blank"><i class="fab fa-instagram" style="margin-right: 8px;"></i> Instagram</a></li>
+          <li><a href="https://www.youtube.com/@KhanqahMaseehulUmmat" target="_blank"><i class="fab fa-youtube" style="margin-right: 8px;"></i> YouTube</a></li>
+          <li><a href="https://chat.whatsapp.com/KhanqahMaseehulUmmat" target="_blank"><i class="fab fa-whatsapp" style="margin-right: 8px;"></i> WhatsApp Group</a></li>
+        </ul>
+      </div>
+
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2024 Khanqah Maseehul Ummat. All rights reserved.</span>
+      <span class="footer-arabic">وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════ VIDEO MODAL ═══════════════════════ -->
+<div class="video-modal" id="video-modal" onclick="if(event.target===this)closeVideoModal()">
+  <div class="modal-inner">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Video</span>
+      <button class="modal-close" onclick="closeVideoModal()">✕</button>
+    </div>
+    <div class="modal-video">
+      <iframe id="modal-iframe" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ NOTIFICATION BANNER ═══════════════════════ -->
+<div class="notif-banner" id="notif-banner">
+  <div class="nb-header">
+    <span class="nb-title"><i class="fas fa-bell" style="margin-right: 8px;"></i> Khanqah Update</span>
+
+    <button class="nb-close" onclick="closeBanner()">✕</button>
+  </div>
+  <p class="nb-text" id="banner-text"></p>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

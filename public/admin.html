@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional Admin Dashboard | Khanqah</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- Login Overlay -->
+  <div id="login-overlay" class="login-overlay active">
+    <div class="login-box">
+      <div style="font-size: 3rem; color: #10b981; margin-bottom: 1rem;"><i class="fas fa-shield-halved"></i></div>
+      <h2>Admin Access</h2>
+      <p style="color: #64748b;">Please enter your secure credentials</p>
+      <input type="password" id="admin-password" placeholder="Admin Password" autofocus>
+      <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="adminLogin()">Authenticate</button>
+      <div id="login-error" class="error-msg" style="color:#ef4444; margin-top:1rem; font-size:0.85rem; font-weight:600;"></div>
+    </div>
+  </div>
+
+  <!-- Main Admin Dashboard -->
+  <div id="admin-dashboard" class="admin-dashboard">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        Khanqah<span>Admin</span>
+      </div>
+      
+      <ul class="admin-menu" onclick="handleSidebarClick(event)">
+        <li class="active" data-tab="tab-dashboard">
+          <i class="fas fa-chart-line"></i> <span>Dashboard</span>
+        </li>
+        <li data-tab="tab-bayans">
+          <i class="fas fa-headphones"></i> <span>Manage Bayans</span>
+        </li>
+        <li data-tab="tab-videos">
+          <i class="fas fa-video"></i> <span>Manage Videos</span>
+        </li>
+        <li data-tab="tab-courses">
+          <i class="fas fa-book-open"></i> <span>Manage Courses</span>
+        </li>
+        <li data-tab="tab-questions">
+          <i class="fas fa-circle-question"></i> <span>Answer Q&A</span>
+        </li>
+        <li data-tab="tab-notifications">
+          <i class="fas fa-bell"></i> <span>Push Alerts</span>
+        </li>
+      </ul>
+
+
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="adminLogout()">
+          <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      
+      <!-- DASHBOARD TAB -->
+      <section id="tab-dashboard" class="admin-tab active">
+        <h1 style="margin-bottom: 2rem;">Overview</h1>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7; color:#166534;"><i class="fas fa-headphones"></i></div>
+            <div class="stat-info">
+              <div class="label">Total Bayans</div>
+              <div class="value" id="stat-bayans">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe; color:#0369a1;"><i class="fas fa-video"></i></div>
+            <div class="stat-info">
+              <div class="label">Total Videos</div>
+              <div class="value" id="stat-videos">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7; color:#92400e;"><i class="fas fa-book-open"></i></div>
+            <div class="stat-info">
+              <div class="label">Active Courses</div>
+              <div class="value" id="stat-courses">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fee2e2; color:#991b1b;"><i class="fas fa-circle-question"></i></div>
+            <div class="stat-info">
+              <div class="label">Pending Q&A</div>
+              <div class="value" id="stat-questions">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <h3>Welcome, Admin</h3>
+          <p style="color:var(--admin-text-muted); line-height:1.6;">
+            Manage your content, answer spiritual questions, and push notifications to the community. 
+            All changes made here are reflected in real-time on the main website.
+          </p>
+        </div>
+      </section>
+
+      <!-- Bayans Tab -->
+      <section id="tab-bayans" class="admin-tab">
+        <h1 style="margin-bottom: 2rem;">Manage Bayans</h1>
+        <div class="admin-card">
+          <h3 style="margin-bottom: 1.5rem;">Add New Audio Bayan</h3>
+          <div class="form-group">
+            <label class="form-label">Title</label>
+            <input type="text" id="add-bayan-title" placeholder="e.g. Importance of Ikhlas" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Audio URL (SoundCloud / Direct Link)</label>
+            <input type="url" id="add-bayan-url" placeholder="Paste the audio link here..." class="form-input">
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select id="add-bayan-cat" class="form-input">
+                <option value="Tasawwuf">Tasawwuf</option>
+                <option value="Ibaadat">Ibaadat</option>
+                <option value="Akhlaq">Akhlaq</option>
+                <option value="Quran">Quran</option>
+                <option value="Ramadan">Ramadan</option>
+                <option value="Islah">Islah</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Duration</label>
+              <input type="text" id="add-bayan-dur" placeholder="e.g. 45:20" class="form-input">
+            </div>
+          </div>
+          <button class="btn-primary" onclick="addBayan()"><i class="fas fa-plus"></i> Publish Bayan</button>
+        </div>
+
+        <div class="admin-card">
+          <h3 style="margin-bottom: 1.5rem;">Existing Library</h3>
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Date</th>
+                  <th style="width: 80px;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="table-bayans"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Videos Tab -->
+      <section id="tab-videos" class="admin-tab">
+        <h1 style="margin-bottom: 2rem;">Manage Videos</h1>
+        <div class="admin-card">
+          <h3 style="margin-bottom: 1.5rem;">Add YouTube Video</h3>
+          <div class="form-group">
+            <label class="form-label">Title</label>
+            <input type="text" id="add-video-title" placeholder="Video Title" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">YouTube URL</label>
+            <input type="url" id="add-video-url" placeholder="https://www.youtube.com/watch?v=..." class="form-input">
+          </div>
+          <button class="btn-primary" onclick="addVideo()"><i class="fas fa-plus"></i> Publish Video</button>
+        </div>
+
+        <div class="admin-card">
+          <h3 style="margin-bottom: 1.5rem;">Video Gallery</h3>
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Video ID</th>
+                  <th>Added On</th>
+                  <th style="width: 80px;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="table-videos"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Courses Tab -->
+      <section id="tab-courses" class="admin-tab">
+        <h1 style="margin-bottom: 2rem;">Manage Courses</h1>
+        <div class="admin-card">
+          <h3 style="margin-bottom: 1.5rem;">Create New Program</h3>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+              <label class="form-label">Title (English)</label>
+              <input type="text" id="add-course-title" placeholder="Course Name" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Title (Arabic/Urdu)</label>
+              <input type="text" id="add-course-arabic" placeholder="خانقاہی نصاب" class="form-input">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Program Description</label>
+            <textarea id="add-course-desc" placeholder="Details about course content..." class="form-input" rows="3"></textarea>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="form-group">
+              <label class="form-label">Icon Emoji</label>
+              <input type="text" id="add-course-icon" placeholder="📚" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <input type="text" id="add-course-status" placeholder="Ongoing / Completed" class="form-input">
+            </div>
+          </div>
+          <button class="btn-primary" onclick="addCourse()"><i class="fas fa-plus"></i> Launch Program</button>
+        </div>
+
+        <div class="admin-card">
+          <h3 style="margin-bottom: 1.5rem;">Active Programs</h3>
+          <div class="table-container">
+            <table class="admin-table">
+              <thead><tr><th>Title</th><th>Status</th><th>Duration</th><th style="width: 80px;">Action</th></tr></thead>
+              <tbody id="table-courses"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Q&A Tab -->
+      <section id="tab-questions" class="admin-tab">
+        <h1 style="margin-bottom: 2rem;">Questions & Answers</h1>
+        
+        <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-hourglass-start" style="color:var(--admin-accent)"></i> Needs Answer</h3>
+        <div id="pending-questions-list">
+          <!-- Pending cards -->
+        </div>
+
+        <h3 style="margin-top:4rem; margin-bottom: 1.5rem;"><i class="fas fa-circle-check" style="color:var(--admin-primary)"></i> Published Answers</h3>
+        <div id="answered-questions-list">
+          <!-- Answered cards -->
+        </div>
+      </section>
+
+      <!-- Notifications Tab -->
+      <section id="tab-notifications" class="admin-tab">
+        <h1 style="margin-bottom: 2rem;">Push Notifications</h1>
+        <div class="admin-card">
+          <h3 style="margin-bottom: 1.5rem;">New Broadcast</h3>
+          <div class="form-group">
+            <label class="form-label">Alert Header</label>
+            <input type="text" id="add-notif-title" placeholder="Event Name or Update" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message Content</label>
+            <textarea id="add-notif-body" placeholder="Broadcast details..." class="form-input" rows="3"></textarea>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="form-group">
+              <label class="form-label">Severity Type</label>
+              <select id="add-notif-type" class="form-input">
+                <option value="general">General</option>
+                <option value="important">Important</option>
+                <option value="event">Event</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Badge Label</label>
+              <input type="text" id="add-notif-badge" placeholder="e.g. 'Event'" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Arabic Tag</label>
+              <input type="text" id="add-notif-arabic" placeholder="تحديث جديد" class="form-input">
+            </div>
+          </div>
+          <button class="btn-primary" onclick="addNotification()"><i class="fas fa-paper-plane"></i> Send Broadcast</button>
+        </div>
+
+        <div class="admin-card">
+          <h3 style="margin-bottom: 1.5rem;">Broadcast History</h3>
+          <div class="table-container">
+            <table class="admin-table">
+              <thead><tr><th>Title</th><th>Severity</th><th>Sent On</th><th style="width: 80px;">Action</th></tr></thead>
+              <tbody id="table-notifications"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+
+</html>

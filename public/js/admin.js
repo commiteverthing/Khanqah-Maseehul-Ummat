@@ -1,0 +1,391 @@
+// Admin Auth State
+let isLoggedIn = false;
+
+// ─── INIT ───
+document.addEventListener('DOMContentLoaded', async () => {
+  // Check auth
+  try {
+    const res = await fetch('/api/admin/check');
+    if (res.ok) {
+      isLoggedIn = true;
+      document.getElementById('login-overlay').classList.remove('active');
+      document.getElementById('admin-dashboard').classList.add('active');
+      loadAdminData();
+    }
+  } catch (err) { console.error('Needs login'); }
+});
+
+async function adminLogin() {
+  const password = document.getElementById('admin-password').value;
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      isLoggedIn = true;
+      document.getElementById('login-overlay').classList.remove('active');
+      document.getElementById('login-error').textContent = '';
+      document.getElementById('admin-dashboard').classList.add('active');
+      loadAdminData();
+    } else {
+      document.getElementById('login-error').textContent = data.message || 'Invalid password';
+    }
+  } catch (err) {
+    document.getElementById('login-error').textContent = 'Net Error';
+  }
+}
+
+async function adminLogout() {
+  await fetch('/api/admin/logout');
+  isLoggedIn = false;
+  document.getElementById('admin-dashboard').classList.remove('active');
+  document.getElementById('login-overlay').classList.add('active');
+  document.getElementById('admin-password').value = '';
+}
+
+// Handle sidebar click via event delegation — fixes bug where clicking icon/span breaks navigation
+function handleSidebarClick(event) {
+  const li = event.target.closest('li[data-tab]');
+  if (!li) return;
+  const tabId = li.dataset.tab;
+  showAdminTab(tabId, li);
+}
+
+function showAdminTab(tabId, el) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  document.querySelectorAll('.admin-menu li').forEach(li => li.classList.remove('active'));
+  el.classList.add('active');
+
+  if (tabId === 'tab-bayans') loadBayans();
+  if (tabId === 'tab-videos') loadVideos();
+  if (tabId === 'tab-courses') loadCourses();
+  if (tabId === 'tab-questions') loadQuestions();
+  if (tabId === 'tab-notifications') loadNotifications();
+  if (tabId === 'tab-dashboard') loadDashboardStats();
+}
+
+
+async function loadDashboardStats() {
+  try {
+    const [b, v, c, q] = await Promise.all([
+      fetch('/api/bayans').then(r => r.json()),
+      fetch('/api/videos').then(r => r.json()),
+      fetch('/api/courses').then(r => r.json()),
+      fetch('/api/questions').then(r => r.json())
+    ]);
+    
+    document.getElementById('stat-bayans').textContent = b.length;
+    document.getElementById('stat-videos').textContent = v.length;
+    document.getElementById('stat-courses').textContent = c.length;
+    document.getElementById('stat-questions').textContent = q.filter(it => !it.answered).length;
+  } catch (err) {
+    console.error('Stats error:', err);
+  }
+}
+
+
+
+// ─── LOAD DATA ───
+async function loadAdminData() {
+  loadDashboardStats();
+  loadBayans();
+  loadVideos();
+  loadCourses();
+  loadQuestions();
+  loadNotifications();
+}
+
+
+// ─── BAYANS ───
+async function loadBayans() {
+  const res = await fetch('/api/bayans');
+  const items = await res.json();
+  const tb = document.getElementById('table-bayans');
+    tb.innerHTML = items.map(b => `
+      <tr>
+        <td style="font-weight:600">${b.title}</td>
+        <td><span class="badge-cat">${b.category}</span></td>
+        <td style="color:var(--admin-text-muted)">${b.date}</td>
+        <td><button class="btn-del" onclick="deleteBayan('${b.id}')">Delete</button></td>
+      </tr>
+    `).join('');
+
+}
+
+async function addBayan() {
+  const title = document.getElementById('add-bayan-title').value;
+  const url = document.getElementById('add-bayan-url').value;
+  const category = document.getElementById('add-bayan-cat').value;
+  let duration = document.getElementById('add-bayan-dur').value || '00:00';
+  const date = new Date().toISOString().split('T')[0];
+
+  if (!title || !url) return alert('Title and URL required');
+
+  await fetch('/api/bayans', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, url, category, duration, date })
+  });
+
+  document.getElementById('add-bayan-title').value = '';
+  document.getElementById('add-bayan-url').value = '';
+  document.getElementById('add-bayan-dur').value = '';
+  loadBayans();
+}
+
+async function deleteBayan(id) {
+  if (!confirm('Are you sure?')) return;
+  await fetch('/api/bayans/' + id, { method: 'DELETE' });
+  loadBayans();
+}
+
+// ─── VIDEOS ───
+async function loadVideos() {
+  const res = await fetch('/api/videos');
+  const items = await res.json();
+  const tb = document.getElementById('table-videos');
+    tb.innerHTML = items.map(v => `
+      <tr>
+        <td style="font-weight:600">${v.title}</td>
+        <td style="font-family:monospace; color:var(--admin-secondary)">${v.videoId}</td>
+        <td style="color:var(--admin-text-muted)">${v.date}</td>
+        <td><button class="btn-del" onclick="deleteVideo('${v.id}')">Delete</button></td>
+      </tr>
+    `).join('');
+
+}
+
+async function addVideo() {
+  const title = document.getElementById('add-video-title').value;
+  const url = document.getElementById('add-video-url').value;
+  const date = new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+
+  if (!title || !url) return alert('Title and URL required');
+
+  const ytId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([^&\n?#]+)/);
+  if (!ytId) return alert('Invalid YT URL');
+
+  await fetch('/api/videos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, ytId: ytId[1], date, thumb: '' })
+  });
+
+  document.getElementById('add-video-title').value = '';
+  document.getElementById('add-video-url').value = '';
+  loadVideos();
+}
+
+async function deleteVideo(id) {
+  if (!confirm('Are you sure?')) return;
+  await fetch('/api/videos/' + id, { method: 'DELETE' });
+  loadVideos();
+}
+
+// ─── COURSES ───
+async function loadCourses() {
+  const res = await fetch('/api/courses');
+  const items = await res.json();
+  const tb = document.getElementById('table-courses');
+    tb.innerHTML = items.map(c => `
+      <tr>
+        <td style="font-weight:600">${c.title}</td>
+        <td><span class="badge-cat" style="background:#fef3c7; color:#92400e;">${c.status}</span></td>
+        <td style="color:var(--admin-text-muted)">${c.duration}</td>
+        <td><button class="btn-del" onclick="deleteCourse('${c.id}')">Delete</button></td>
+      </tr>
+    `).join('');
+
+}
+
+async function addCourse() {
+  const title = document.getElementById('add-course-title').value;
+  const arabicTitle = document.getElementById('add-course-arabic').value;
+  const description = document.getElementById('add-course-desc').value;
+  const icon = document.getElementById('add-course-icon').value || '📚';
+  const status = document.getElementById('add-course-status').value || 'Ongoing';
+  const duration = document.getElementById('add-course-dur').value || 'TBA';
+  const location = document.getElementById('add-course-loc').value || 'Online';
+
+  if (!title || !description) return alert('Title and Description required');
+
+  await fetch('/api/courses', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, arabicTitle, description, icon, status, duration, location })
+  });
+
+  document.getElementById('add-course-title').value = '';
+  document.getElementById('add-course-arabic').value = '';
+  document.getElementById('add-course-desc').value = '';
+  document.getElementById('add-course-icon').value = '';
+  document.getElementById('add-course-status').value = '';
+  document.getElementById('add-course-dur').value = '';
+  document.getElementById('add-course-loc').value = '';
+  loadCourses();
+}
+
+async function deleteCourse(id) {
+  if (!confirm('Are you sure?')) return;
+  await fetch('/api/courses/' + id, { method: 'DELETE' });
+  loadCourses();
+}
+
+
+// ─── QUESTIONS ───
+async function loadQuestions() {
+  try {
+    const res = await fetch('/api/questions');
+    const items = await res.json();
+    
+    const pending = items.filter(q => !q.answered);
+    const answered = items.filter(q => q.answered);
+
+    // Render Pending
+    const pendingList = document.getElementById('pending-questions-list');
+    if (pending.length === 0) {
+      pendingList.innerHTML = '<p style="text-align:center; color:#95a5a6; padding:2rem;">No pending questions! 🙌</p>';
+    } else {
+      pendingList.innerHTML = pending.map(q => `
+        <div class="q-card">
+          <h4><span>📅 ${q.date}</span> <span class="badge-cat">${q.category}</span></h4>
+          <div class="q-text">"${q.question}"</div>
+          <div style="color:#7f8c8d; font-size:0.85rem; margin-bottom:1rem">From: ${q.name}</div>
+          <textarea id="ans-text-${q.id}" class="form-input" rows="4" placeholder="Write your professional answer here..."></textarea>
+          <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button class="btn-del" onclick="deleteQuestion('${q.id}')">Delete</button>
+            <button class="btn-primary" onclick="submitAnswer('${q.id}')">Submit Answer</button>
+          </div>
+        </div>
+      `).join('');
+
+    }
+
+    // Render Answered
+    const answeredList = document.getElementById('answered-questions-list');
+    if (answered.length === 0) {
+      answeredList.innerHTML = '<p style="text-align:center; color:#95a5a6;">No answered questions yet.</p>';
+    } else {
+      answeredList.innerHTML = answered.map(q => `
+        <div class="q-card answered" id="q-card-${q.id}">
+          <h4><span>📅 ${q.date}</span> <span class="badge-cat">${q.category}</span></h4>
+          <div class="q-text">"${q.question}"</div>
+          <div style="color:#7f8c8d; font-size:0.85rem; margin-bottom:1rem">From: ${q.name}</div>
+          
+          <div id="ans-display-${q.id}" class="ans-section">
+            <span class="ans-label">Answered</span>
+            <div class="ans-content">${q.answer}</div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
+              <button class="btn-del" onclick="deleteQuestion('${q.id}')">Delete</button>
+              <button class="btn-primary" style="padding:6px 15px; font-size:0.75rem;" onclick="showEditMode('${q.id}', '${q.answer.replace(/'/g, "\\'").replace(/\n/g, "\\n")}')">Edit Answer</button>
+            </div>
+          </div>
+          
+          <div id="ans-edit-${q.id}" style="display:none; margin-top:1rem;">
+            <label style="font-weight:bold; font-size:0.85rem; display:block; margin-bottom:0.5rem">Edit Answer:</label>
+            <textarea id="edit-text-${q.id}" class="form-input" rows="4"></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+              <button onclick="cancelEdit('${q.id}')" style="background:#bdc3c7; color:white; border:none; padding:5px 12px; border-radius:4px; cursor:pointer;">Cancel</button>
+              <button class="btn-primary" onclick="updateAnswer('${q.id}')">Update Answer</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+    }
+  } catch (err) {
+    console.error('Error loading questions:', err);
+  }
+}
+
+async function submitAnswer(id) {
+  const answer = document.getElementById('ans-text-' + id).value.trim();
+  if (!answer) return alert('Please enter an answer.');
+
+  await fetch(`/api/questions/${id}/answer`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ answer })
+  });
+  
+  loadQuestions();
+}
+
+function showEditMode(id, currentAnswer) {
+  document.getElementById(`ans-display-${id}`).style.display = 'none';
+  document.getElementById(`ans-edit-${id}`).style.display = 'block';
+  document.getElementById(`edit-text-${id}`).value = currentAnswer;
+}
+
+function cancelEdit(id) {
+  document.getElementById(`ans-display-${id}`).style.display = 'block';
+  document.getElementById(`ans-edit-${id}`).style.display = 'none';
+}
+
+async function updateAnswer(id) {
+  const newAnswer = document.getElementById(`edit-text-${id}`).value.trim();
+  if (!newAnswer) return alert('Answer cannot be empty.');
+
+  await fetch(`/api/questions/${id}/answer`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ answer: newAnswer })
+  });
+  
+  loadQuestions();
+}
+
+async function deleteQuestion(id) {
+  if (!confirm('Are you sure you want to permanently delete this question?')) return;
+  await fetch(`/api/questions/${id}`, { method: 'DELETE' });
+  loadQuestions();
+}
+
+
+
+// ─── NOTIFICATIONS ───
+async function loadNotifications() {
+  const res = await fetch('/api/notifications');
+  const items = await res.json();
+  const tb = document.getElementById('table-notifications');
+    tb.innerHTML = items.map(n => `
+      <tr>
+        <td style="font-weight:600">${n.title}</td>
+        <td><span class="badge-cat">${n.type}</span></td>
+        <td style="color:var(--admin-text-muted)">${n.date}</td>
+        <td><button class="btn-del" onclick="deleteNotification('${n.id}')">Delete</button></td>
+      </tr>
+    `).join('');
+
+}
+
+async function addNotification() {
+  const type = document.getElementById('add-notif-type').value;
+  const badge = document.getElementById('add-notif-badge').value || 'Alert';
+  const arabic = document.getElementById('add-notif-arabic').value || 'إِعْلَان';
+  const title = document.getElementById('add-notif-title').value;
+  const body = document.getElementById('add-notif-body').value;
+  const date = new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+
+  if (!title || !body) return alert('Title and body required');
+
+  await fetch('/api/notifications', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type, badge, arabic, title, body, date })
+  });
+
+  document.getElementById('add-notif-title').value = '';
+  document.getElementById('add-notif-body').value = '';
+  loadNotifications();
+}
+
+async function deleteNotification(id) {
+  if (!confirm('Are you sure?')) return;
+  await fetch('/api/notifications/' + id, { method: 'DELETE' });
+  loadNotifications();
+}
