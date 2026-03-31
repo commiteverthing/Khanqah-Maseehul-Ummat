@@ -269,19 +269,12 @@
 
           <div class="form-row">
             <label class="form-label">Category (optional — will be auto-detected)</label>
-            <select id="q-category" class="form-select">
-              <option value="">🤖 Auto-detect category</option>
-              <option>Tasawwuf</option>
-              <option>Ibaadat</option>
-              <option>Akhlaq</option>
-              <option>Quran</option>
-              <option>Fiqh</option>
-              <option>Islah</option>
-              <option>Ramadan</option>
-              <option>General</option>
+            <select id="q-cat-select" class="form-select">
+              <!-- Dynamically populated -->
             </select>
             <span class="auto-detect-badge" id="auto-cat-badge" style="display:none"></span>
           </div>
+
 
           <button class="btn-primary" onclick="submitQuestion()" style="width:100%; margin-top:0.5rem;">
             Send Question →

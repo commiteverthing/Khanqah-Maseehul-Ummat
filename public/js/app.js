@@ -22,8 +22,8 @@ const store = {
 };
 
 
-const qaCategories = ['Tasawwuf','Ibaadat','Akhlaq','Quran','Fiqh','Islah','Ramadan','General'];
-const bayancategories = ['All','Tasawwuf','Ibaadat','Akhlaq','Quran','Ramadan','Islah'];
+let dynamicCategories = [];
+
 
 // ─── FETCH INITIAL DATA ───
 async function initData() {
@@ -33,14 +33,18 @@ async function initData() {
       fetch('/api/videos'),
       fetch('/api/questions'),
       fetch('/api/notifications'),
-      fetch('/api/courses')
+      fetch('/api/courses'),
+      fetch('/api/categories')
     ]);
+
     
     store.bayans = await bRes.json();
     store.videos = await vRes.json();
     store.questions = await qRes.json();
     store.notifications = await nRes.json();
     store.courses = await cRes.json();
+    dynamicCategories = await catRes.json();
+
 
     renderNotifications();
     renderCategories();
@@ -172,13 +176,17 @@ function renderCategories() {
   store.bayans.forEach(b => { counts[b.category] = (counts[b.category] || 0) + 1; });
   const total = store.bayans.length;
   const list = document.getElementById('cat-list');
-  list.innerHTML = bayancategories.map(c => `
-    <li class="${c === activeCat ? 'active' : ''}" onclick="filterBayans('${c}', this)">
-      <span>${c === 'All' ? '☰' : getCatIcon(c)}</span> ${c}
-      <span class="count">${c === 'All' ? total : (counts[c] || 0)}</span>
+  
+  const cats = [{ name: 'All', icon: '☰' }, ...dynamicCategories];
+  
+  list.innerHTML = cats.map(c => `
+    <li class="${c.name === activeCat ? 'active' : ''}" onclick="filterBayans('${c.name}', this)">
+      <span>${c.icon}</span> ${c.name}
+      <span class="count">${c.name === 'All' ? total : (counts[c.name] || 0)}</span>
     </li>
   `).join('');
 }
+
 
 function getCatIcon(cat) {
   const icons = { Tasawwuf:'✦', Ibaadat:'🕌', Akhlaq:'🌿', Quran:'📖', Ramadan:'🌙', Islah:'💫' };
@@ -491,17 +499,19 @@ function setQaFilter(cat, el) {
 }
 
 function renderQaFilterBtns() {
-  const cats = ['All', ...qaCategories];
+  const cats = ['All', ...dynamicCategories.map(c => c.name)];
   document.getElementById('qa-filter-bar').innerHTML = cats.map(c => `
     <button class="qa-filter-btn ${c === 'All' ? 'active' : ''}" onclick="setQaFilter('${c}', this)">${c}</button>
   `).join('');
 }
 
+
 // Submit Question mapped to Backend API
 async function submitQuestion() {
   const name = document.getElementById('q-name').value.trim();
   const question = document.getElementById('q-text').value.trim();
-  const manualCat = document.getElementById('q-category').value;
+  const catSelect = document.getElementById('q-cat-select');
+  const manualCat = catSelect ? catSelect.value : '';
 
   if (!name || !question) { alert('Please enter your name and question.'); return; }
 
@@ -527,11 +537,10 @@ async function submitQuestion() {
     if (res.ok) {
         document.getElementById('q-name').value = '';
         document.getElementById('q-text').value = '';
-        document.getElementById('q-category').value = '';
-        badge.textContent = '✅ Question submitted!';
+        if (catSelect) catSelect.selectedIndex = 0;
+        
         setTimeout(() => { badge.textContent = ''; badge.style.display = 'none'; }, 3000);
         showBanner('Question submitted! JazakAllah Khair.');
-        // Refresh data
         initData();
     } else {
         showBanner('Error submitting question.');
@@ -541,6 +550,17 @@ async function submitQuestion() {
       showBanner('Network Error.');
   }
 }
+
+async function populateQaFormDropdown() {
+  const res = await fetch('/api/categories');
+  const cats = await res.json();
+  const select = document.getElementById('q-cat-select');
+  if (select) {
+    select.innerHTML = cats.map(c => `<option>${c.name}</option>`).join('');
+  }
+}
+populateQaFormDropdown();
+
 
 function autoDetectQaCategoryLocal(text) {
   const t = text.toLowerCase();

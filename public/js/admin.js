@@ -15,6 +15,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (err) { console.error('Needs login'); }
 });
 
+let categories = [];
+
+async function refreshCategoryDropdowns() {
+  const res = await fetch('/api/categories');
+  categories = await res.json();
+  
+  const dropdowns = ['add-bayan-cat', 'add-notif-type'];
+  dropdowns.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.innerHTML = categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+    }
+  });
+}
+
+
 async function adminLogin() {
   const password = document.getElementById('admin-password').value;
   try {
@@ -73,7 +89,9 @@ function showAdminTab(tabId, el) {
   if (tabId === 'tab-questions') loadQuestions();
   if (tabId === 'tab-notifications') loadNotifications();
   if (tabId === 'tab-dashboard') loadDashboardStats();
+  if (tabId === 'tab-categories') loadCategories();
 }
+
 
 
 async function loadDashboardStats() {
@@ -98,6 +116,7 @@ async function loadDashboardStats() {
 
 // ─── LOAD DATA ───
 async function loadAdminData() {
+  await refreshCategoryDropdowns();
   loadDashboardStats();
   loadBayans();
   loadVideos();
@@ -105,6 +124,7 @@ async function loadAdminData() {
   loadQuestions();
   loadNotifications();
 }
+
 
 
 // ─── BAYANS ───
@@ -396,3 +416,48 @@ async function deleteNotification(id) {
   await fetch('/api/notifications/' + id, { method: 'DELETE' });
   loadNotifications();
 }
+
+// ─── CATEGORIES ───
+async function loadCategories() {
+  const res = await fetch('/api/categories');
+  const items = await res.json();
+  categories = items;
+  const tb = document.getElementById('table-categories');
+  tb.innerHTML = items.map(c => `
+    <tr>
+      <td style="font-weight:600">${c.name}</td>
+      <td style="font-size:1.2rem">${c.icon}</td>
+      <td>${c.order}</td>
+      <td><button class="btn-del" onclick="deleteCategory('${c.id}')">Delete</button></td>
+    </tr>
+  `).join('');
+}
+
+async function addCategory() {
+  const name = document.getElementById('add-cat-name').value.trim();
+  const icon = document.getElementById('add-cat-icon').value.trim() || '▪';
+  const order = parseInt(document.getElementById('add-cat-order').value) || 0;
+
+  if (!name) return alert('Category name is required');
+
+  await fetch('/api/categories', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, icon, order })
+  });
+
+  document.getElementById('add-cat-name').value = '';
+  document.getElementById('add-cat-icon').value = '';
+  document.getElementById('add-cat-order').value = '0';
+  
+  await refreshCategoryDropdowns();
+  loadCategories();
+}
+
+async function deleteCategory(id) {
+  if (!confirm('Are you sure? Removing a category will not delete items in that category, but they may not show up in filters.')) return;
+  await fetch('/api/categories/' + id, { method: 'DELETE' });
+  await refreshCategoryDropdowns();
+  loadCategories();
+}
+

@@ -193,6 +193,30 @@ app.delete('/api/courses/:id', requireAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ─── CATEGORIES ───
+app.get('/api/categories', async (req, res) => {
+  try {
+    const categories = await db.Category.find().sort({ order: 1 });
+    res.json(categories.map(mapId));
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/categories', requireAdmin, async (req, res) => {
+  try {
+    const newCat = new db.Category(req.body);
+    await newCat.save();
+    res.json({ success: true, id: newCat._id });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/categories/:id', requireAdmin, async (req, res) => {
+  try {
+    await db.Category.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+
 async function startServer() {
   try {
     // 1. Wait for database connection

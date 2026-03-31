@@ -54,7 +54,11 @@
         <li data-tab="tab-notifications">
           <i class="fas fa-bell"></i> <span>Push Alerts</span>
         </li>
+        <li data-tab="tab-categories">
+          <i class="fas fa-tags"></i> <span>Categories</span>
+        </li>
       </ul>
+
 
 
       <div class="sidebar-footer">
@@ -308,8 +312,42 @@
         </div>
       </section>
 
+      <!-- Categories Tab -->
+      <section id="tab-categories" class="admin-tab">
+        <h1 style="margin-bottom: 2rem;">Manage Categories</h1>
+        <div class="admin-card">
+          <h3 style="margin-bottom: 1.5rem;">Create New Category</h3>
+          <div style="display:grid; grid-template-columns: 1fr 1fr 100px; gap: 1.5rem;">
+            <div class="form-group">
+              <label class="form-label">Category Name</label>
+              <input type="text" id="add-cat-name" placeholder="e.g. Fiqh" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Icon / Emoji</label>
+              <input type="text" id="add-cat-icon" placeholder="e.g. 📖" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Order</label>
+              <input type="number" id="add-cat-order" value="0" class="form-input">
+            </div>
+          </div>
+          <button class="btn-primary" onclick="addCategory()"><i class="fas fa-plus"></i> Save Category</button>
+        </div>
+
+        <div class="admin-card">
+          <h3 style="margin-bottom: 1.5rem;">Existing Categories</h3>
+          <div class="table-container">
+            <table class="admin-table">
+              <thead><tr><th>Name</th><th>Icon</th><th>Order</th><th style="width: 80px;">Action</th></tr></thead>
+              <tbody id="table-categories"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
+
 
   <script src="js/admin.js"></script>
 </body>
