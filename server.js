@@ -22,8 +22,11 @@ app.use(session({
 // Serve static files from 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Initialize Database (Connect to MongoDB and Seed)
-db.initDb();
+// Health check endpoint
+app.get('/ping', (req, res) => {
+  res.json({ status: 'ok', time: new Date().toISOString() });
+});
+
 
 // ─── AUTHENTICATION ───
 app.post('/api/admin/login', (req, res) => {
@@ -190,7 +193,21 @@ app.delete('/api/courses/:id', requireAdmin, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+async function startServer() {
+  try {
+    // 1. Wait for database connection
+    console.log('Connecting to MongoDB...');
+    await db.initDb();
+    
+    // 2. Start listening
+    app.listen(PORT, () => {
+      console.log(`✅ Server successfully connected and listening on http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('❌ Server failed to start:', err);
+    process.exit(1);
+  }
+}
 
-app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
-});
+startServer();
+
