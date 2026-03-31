@@ -28,7 +28,7 @@ let dynamicCategories = [];
 // ─── FETCH INITIAL DATA ───
 async function initData() {
   try {
-    const [bRes, vRes, qRes, nRes, cRes] = await Promise.all([
+    const [bRes, vRes, qRes, nRes, cRes, catRes] = await Promise.all([
       fetch('/api/bayans'),
       fetch('/api/videos'),
       fetch('/api/questions'),
@@ -36,6 +36,7 @@ async function initData() {
       fetch('/api/courses'),
       fetch('/api/categories')
     ]);
+
 
     
     store.bayans = await bRes.json();
