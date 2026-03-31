@@ -2,10 +2,11 @@
   "name": "khanqah2",
   "version": "1.0.0",
   "description": "``` khanqah/ ├── index.html          ← Main website file (open this in browser) ├── css/ │   └── style.css       ← All styles ├── js/ │   └── app.js          ← All functionality └── images/             ← ⭐ PUT YOUR IMAGES HERE     ├── logo.png         ← Khanqah logo (auto-detected by name)     ├── hero.jpg         ← Optional hero background image     ├── banner.jpg       ← Optional alternate banner     └── favicon.png      ← Browser tab icon ```",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+
   "keywords": [],
   "author": "",
   "license": "ISC",
