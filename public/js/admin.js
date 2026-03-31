@@ -55,10 +55,17 @@ function handleSidebarClick(event) {
 }
 
 function showAdminTab(tabId, el) {
+  // Hide all tabs and show target
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(tabId).classList.add('active');
+  const targetTab = document.getElementById(tabId);
+  if (targetTab) targetTab.classList.add('active');
+
+  // Update sidebar active state
   document.querySelectorAll('.admin-menu li').forEach(li => li.classList.remove('active'));
-  el.classList.add('active');
+  
+  const activeLi = el || document.querySelector(`.admin-menu li[data-tab="${tabId}"]`);
+  if (activeLi) activeLi.classList.add('active');
+
 
   if (tabId === 'tab-bayans') loadBayans();
   if (tabId === 'tab-videos') loadVideos();
