@@ -449,24 +449,27 @@ function renderQA() {
     return;
   }
 
-  list.innerHTML = filtered.map(q => `
-    <div class="question-card" id="q-${q.id}">
-      <div class="question-header" onclick="toggleQuestion(${q.id})">
-        <div class="q-icon">؟</div>
+  list.innerHTML = filtered.map(q => {
+    const qid = String(q.id || q._id);
+    return `
+    <div class="question-card" id="q-${qid}">
+      <div class="question-header" onclick="toggleQuestion('${qid}')">
+        <div class="q-icon"><i class="fas fa-question"></i></div>
         <div class="q-content">
           <div class="q-text">${q.question}</div>
-          <div class="q-meta">👤 ${q.name} &nbsp;•&nbsp; 📅 ${q.date}
+          <div class="q-meta">👤 ${q.name} &nbsp;•&nbsp; <i class="fas fa-calendar-alt"></i> ${q.date}
             <span class="q-cat-badge">${q.category}</span>
           </div>
         </div>
-        <div class="q-expand-icon">▼</div>
+        <div class="q-expand-icon"><i class="fas fa-chevron-down"></i></div>
       </div>
       <div class="question-answer">
-        <span class="answer-label">Answer from Khanqah</span>
+        <span class="answer-label"><i class="fas fa-reply-all"></i> Answer from Khanqah</span>
         <div class="answer-text ${!q.answered ? 'pending' : ''}">${q.answered ? q.answer : '⏳ Answer pending. JazakAllah for your patience.'}</div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
+
 
   const statEl = document.getElementById('qa-cat-stats');
   const counts = {};
