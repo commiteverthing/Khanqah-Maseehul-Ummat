@@ -21,14 +21,42 @@ async function refreshCategoryDropdowns() {
   const res = await fetch('/api/categories');
   categories = await res.json();
   
-  const dropdowns = ['add-bayan-cat', 'add-notif-type'];
-  dropdowns.forEach(id => {
+  const ids = ['add-bayan-cat', 'add-video-cat', 'add-course-cat', 'add-notif-type'];
+  ids.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
       el.innerHTML = categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
     }
   });
 }
+
+function openCatModal() {
+  document.getElementById('cat-modal').classList.add('active');
+  document.getElementById('quick-cat-name').focus();
+}
+function closeCatModal() {
+  document.getElementById('cat-modal').classList.remove('active');
+  document.getElementById('quick-cat-name').value = '';
+  document.getElementById('quick-cat-icon').value = '';
+}
+
+async function submitQuickAddCategory() {
+  const name = document.getElementById('quick-cat-name').value.trim();
+  const icon = document.getElementById('quick-cat-icon').value.trim() || '▪';
+  if (!name) return alert('Name required');
+
+  const res = await fetch('/api/categories', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, icon, order: 0 })
+  });
+
+  if (res.ok) {
+    await refreshCategoryDropdowns();
+    closeCatModal();
+  }
+}
+
 
 
 async function adminLogin() {
@@ -199,8 +227,15 @@ async function addVideo() {
   await fetch('/api/videos', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, ytId: ytId[1], date, thumb: '' })
+    body: JSON.stringify({ 
+      title, 
+      ytId: ytId[1], 
+      category: document.getElementById('add-video-cat').value,
+      date, 
+      thumb: '' 
+    })
   });
+
 
   document.getElementById('add-video-title').value = '';
   document.getElementById('add-video-url').value = '';
@@ -243,8 +278,18 @@ async function addCourse() {
   await fetch('/api/courses', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, arabicTitle, description, icon, status, duration, location })
+    body: JSON.stringify({ 
+      title, 
+      arabicTitle, 
+      description, 
+      icon, 
+      category: document.getElementById('add-course-cat').value,
+      status, 
+      duration, 
+      location 
+    })
   });
+
 
   document.getElementById('add-course-title').value = '';
   document.getElementById('add-course-arabic').value = '';
@@ -282,7 +327,16 @@ async function loadQuestions() {
           <h4><span>📅 ${q.date}</span> <span class="badge-cat">${q.category}</span></h4>
           <div class="q-text">"${q.question}"</div>
           <div style="color:#7f8c8d; font-size:0.85rem; margin-bottom:1rem">From: ${q.name}</div>
+          
+          <div class="form-group" style="margin-bottom:1rem">
+            <label class="form-label">Category <a href="javascript:void(0)" onclick="openCatModal()" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
+            <select id="ans-cat-${q.id}" class="form-input">
+              ${categories.map(c => `<option value="${c.name}" ${c.name === q.category ? 'selected' : ''}>${c.name}</option>`).join('')}
+            </select>
+          </div>
+
           <textarea id="ans-text-${q.id}" class="form-input" rows="4" placeholder="Write your professional answer here..."></textarea>
+
           <div style="display:flex; justify-content:flex-end; gap:10px;">
             <button class="btn-del" onclick="deleteQuestion('${q.id}')">Delete</button>
             <button class="btn-primary" onclick="submitAnswer('${q.id}')">Submit Answer</button>
@@ -333,11 +387,14 @@ async function submitAnswer(id) {
   const answer = document.getElementById('ans-text-' + id).value.trim();
   if (!answer) return alert('Please enter an answer.');
 
+  const category = document.getElementById('ans-cat-' + id).value;
+
   await fetch(`/api/questions/${id}/answer`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ answer })
+    body: JSON.stringify({ answer, category })
   });
+
   
   loadQuestions();
 }

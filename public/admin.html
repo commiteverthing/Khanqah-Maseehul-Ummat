@@ -130,8 +130,9 @@
           </div>
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
             <div class="form-group">
-              <label class="form-label">Category</label>
+              <label class="form-label">Category <a href="javascript:void(0)" onclick="openCatModal()" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
               <select id="add-bayan-cat" class="form-input">
+
                 <option value="Tasawwuf">Tasawwuf</option>
                 <option value="Ibaadat">Ibaadat</option>
                 <option value="Akhlaq">Akhlaq</option>
@@ -179,6 +180,11 @@
             <label class="form-label">YouTube URL</label>
             <input type="url" id="add-video-url" placeholder="https://www.youtube.com/watch?v=..." class="form-input">
           </div>
+          <div class="form-group">
+            <label class="form-label">Category <a href="javascript:void(0)" onclick="openCatModal()" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
+            <select id="add-video-cat" class="form-input"></select>
+          </div>
+
           <button class="btn-primary" onclick="addVideo()"><i class="fas fa-plus"></i> Publish Video</button>
         </div>
 
@@ -219,6 +225,11 @@
             <label class="form-label">Program Description</label>
             <textarea id="add-course-desc" placeholder="Details about course content..." class="form-input" rows="3"></textarea>
           </div>
+          <div class="form-group">
+            <label class="form-label">Category <a href="javascript:void(0)" onclick="openCatModal()" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
+            <select id="add-course-cat" class="form-input"></select>
+          </div>
+
           <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
             <div class="form-group">
               <label class="form-label">Icon Emoji</label>
@@ -282,8 +293,9 @@
           </div>
           <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
             <div class="form-group">
-              <label class="form-label">Severity Type</label>
+              <label class="form-label">Severity Type <a href="javascript:void(0)" onclick="openCatModal()" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
               <select id="add-notif-type" class="form-input">
+
                 <option value="general">General</option>
                 <option value="important">Important</option>
                 <option value="event">Event</option>
@@ -350,6 +362,30 @@
 
 
   <script src="js/admin.js"></script>
+
+  <!-- Quick Add Category Modal -->
+  <div id="cat-modal" class="login-overlay">
+    <div class="login-box" style="width: 400px; padding: 2.5rem;">
+      <h2 style="margin-bottom: 0.5rem;">Quick Add Category</h2>
+      <p style="font-size:0.85rem; color:var(--admin-text-muted); margin-bottom: 1.5rem;">Create a category without leaving your page.</p>
+      
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" id="quick-cat-name" placeholder="e.g. Finance" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Icon (Emoji)</label>
+        <input type="text" id="quick-cat-icon" placeholder="e.g. 📊" class="form-input">
+      </div>
+      
+      <div style="display:flex; gap: 1rem; margin-top: 1rem;">
+        <button class="btn-primary" onclick="submitQuickAddCategory()" style="flex:1; justify-content:center;">Add Now</button>
+        <button class="btn-logout" onclick="closeCatModal()" style="flex:1;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
 </body>
+
 
 </html>

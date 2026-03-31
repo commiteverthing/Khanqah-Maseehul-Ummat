@@ -116,8 +116,13 @@ function renderCourses() {
     <div class="course-card">
       <div class="course-header">
         <div class="course-icon">${getCourseIconHtml(c.icon)}</div>
-        <span class="course-arabic">${c.arabicTitle || ''}</span>
-        <div class="course-title">${c.title}</div>
+        <div class="course-meta">
+          <span>📅 ${c.status || 'Ongoing'}</span>
+          <span>📍 ${c.location || 'Online'}</span>
+        </div>
+        <div class="course-cat" style="margin-top:0.5rem; font-size:0.75rem; color:var(--primary); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
+           📂 ${c.category || 'General'}
+        </div>
       </div>
       <div class="course-body">
         <p class="course-desc">${c.description}</p>
@@ -424,8 +429,9 @@ function renderVideos() {
       </div>
       <div class="video-info">
         <div class="video-title">${v.title}</div>
-        <div class="video-meta">📅 ${v.date}</div>
+        <div class="video-meta">📅 ${v.date} &nbsp;•&nbsp; <span class="badge-cat">${v.category || 'General'}</span></div>
         <div class="video-actions">
+
           <button class="btn-watch-web" onclick="openVideoModal('${v.ytId}', '${v.title.replace(/'/g,"\\'")}')">▶ Watch Here</button>
           <a class="btn-watch-yt" href="https://www.youtube.com/watch?v=${v.ytId}" target="_blank">▶ YouTube</a>
         </div>
