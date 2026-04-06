@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const session = require('express-session');
 const path = require('path');
+const bcrypt = require('bcrypt');
 const db = require('./database');
 
 const app = express();
@@ -31,7 +32,9 @@ app.get('/ping', (req, res) => {
 // ─── AUTHENTICATION ───
 app.post('/api/admin/login', (req, res) => {
   const { password } = req.body;
-  if (password === process.env.ADMIN_PASSWORD) {
+  const hash = process.env.ADMIN_PASSWORD;
+  
+  if (password && hash && bcrypt.compareSync(password, hash)) {
     req.session.isAdmin = true;
     res.json({ success: true });
   } else {
@@ -214,6 +217,35 @@ app.delete('/api/categories/:id', requireAdmin, async (req, res) => {
     await db.Category.findByIdAndDelete(req.params.id);
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ─── ADMIN TOOLS: METADATA FETCHER ───
+app.get('/api/admin/fetch-metadata', requireAdmin, async (req, res) => {
+  const { url } = req.query;
+  if (!url) return res.status(400).json({ error: 'URL required' });
+
+  try {
+    let metadata = { title: '', duration: '' };
+
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      const response = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+      if (response.ok) {
+        const data = await response.json();
+        metadata.title = data.title || '';
+      }
+    } else if (url.includes('soundcloud.com')) {
+      const response = await fetch(`https://soundcloud.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+      if (response.ok) {
+        const data = await response.json();
+        metadata.title = data.title || '';
+      }
+    }
+
+    res.json(metadata);
+  } catch (err) {
+    console.error('Fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch metadata' });
+  }
 });
 
 

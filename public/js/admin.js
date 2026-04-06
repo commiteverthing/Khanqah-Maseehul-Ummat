@@ -140,6 +140,48 @@ async function loadDashboardStats() {
   }
 }
 
+// ─── ADMIN TOOLS: AUTO-FETCHER ───
+async function fetchMetadata(type) {
+  const urlEl = document.getElementById(`add-${type}-url`);
+  const url = urlEl.value.trim();
+  if (!url) return alert('Please paste a URL first.');
+
+  const btn = event.currentTarget;
+  btn.classList.add('loading');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...';
+
+  try {
+    const res = await fetch(`/api/admin/fetch-metadata?url=${encodeURIComponent(url)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.title) {
+        document.getElementById(`add-${type}-title`).value = data.title;
+        // Auto-detect category from title
+        autoDetectCategory(type, data.title);
+      }
+    } else {
+      alert('Could not fetch metadata for this link.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Fetch failed.');
+  } finally {
+    btn.classList.remove('loading');
+    btn.innerHTML = '<i class="fas fa-magic"></i> Fetch Info';
+  }
+}
+
+function autoDetectCategory(type, title) {
+  const t = title.toLowerCase();
+  const select = document.getElementById(`add-${type}-cat`);
+  if (!select) return;
+
+  if (t.includes('quran') || t.includes('tilawat')) select.value = 'Quran';
+  else if (t.includes('ramadan') || t.includes('roza')) select.value = 'Ramadan';
+  else if (t.includes('tasawwuf') || t.includes('majlis')) select.value = 'Tasawwuf';
+  else if (t.includes('akhlaq') || t.includes('character')) select.value = 'Akhlaq';
+}
+
 
 
 // ─── LOAD DATA ───
@@ -324,59 +366,68 @@ async function loadQuestions() {
     } else {
       pendingList.innerHTML = pending.map(q => `
         <div class="q-card">
-          <h4><span>📅 ${q.date}</span> <span class="badge-cat">${q.category}</span></h4>
-          <div class="q-text">"${q.question}"</div>
-          <div style="color:#7f8c8d; font-size:0.85rem; margin-bottom:1rem">From: ${q.name}</div>
+          <h4>
+            <span><i class="fas fa-clock"></i> Received: ${q.date}</span> 
+            <span class="badge-cat" style="background:#fef3c7; color:#92400e;">Pending</span>
+          </h4>
+          <div class="q-text">${q.question}</div>
+          <div style="color:var(--admin-text-muted); font-size:0.85rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-user-circle"></i> From seeker: <strong>${q.name}</strong>
+          </div>
           
-          <div class="form-group" style="margin-bottom:1rem">
-            <label class="form-label">Category <a href="javascript:void(0)" onclick="openCatModal()" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
-            <select id="ans-cat-${q.id}" class="form-input">
+          <div class="form-group" style="margin-bottom:1.5rem; background:#f8fafc; padding:1rem; border-radius:12px;">
+            <label class="form-label" style="font-size:0.75rem; color:var(--admin-secondary)">Categorize Quest:</label>
+            <select id="ans-cat-${q.id}" class="form-input" style="border-color:var(--admin-border)">
               ${categories.map(c => `<option value="${c.name}" ${c.name === q.category ? 'selected' : ''}>${c.name}</option>`).join('')}
             </select>
           </div>
 
-          <textarea id="ans-text-${q.id}" class="form-input" rows="4" placeholder="Write your professional answer here..."></textarea>
+          <label class="form-label" style="font-size:0.75rem; color:var(--admin-primary)">Your Spiritual Guidance:</label>
+          <textarea id="ans-text-${q.id}" class="form-input" rows="5" style="margin-bottom:1.5rem; border-color:var(--admin-border)" placeholder="Write a compassionate and helpful response..."></textarea>
 
-          <div style="display:flex; justify-content:flex-end; gap:10px;">
-            <button class="btn-del" onclick="deleteQuestion('${q.id}')">Delete</button>
-            <button class="btn-primary" onclick="submitAnswer('${q.id}')">Submit Answer</button>
+          <div style="display:flex; justify-content:flex-end; gap:12px;">
+            <button class="btn-del" onclick="deleteQuestion('${q.id}')"><i class="fas fa-times"></i> Dismiss</button>
+            <button class="btn-primary" onclick="submitAnswer('${q.id}')"><i class="fas fa-paper-plane"></i> Publish Answer</button>
           </div>
         </div>
       `).join('');
-
     }
 
     // Render Answered
     const answeredList = document.getElementById('answered-questions-list');
     if (answered.length === 0) {
-      answeredList.innerHTML = '<p style="text-align:center; color:#95a5a6;">No answered questions yet.</p>';
+      answeredList.innerHTML = '<p style="text-align:center; color:#95a5a6; padding:2rem;">No answered questions yet.</p>';
     } else {
       answeredList.innerHTML = answered.map(q => `
         <div class="q-card answered" id="q-card-${q.id}">
-          <h4><span>📅 ${q.date}</span> <span class="badge-cat">${q.category}</span></h4>
-          <div class="q-text">"${q.question}"</div>
-          <div style="color:#7f8c8d; font-size:0.85rem; margin-bottom:1rem">From: ${q.name}</div>
+          <h4>
+            <span><i class="fas fa-calendar-alt"></i> ${q.date}</span> 
+            <span class="badge-cat">${q.category}</span>
+          </h4>
+          <div class="q-text">${q.question}</div>
+          <div style="color:var(--admin-text-muted); font-size:0.85rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-user-circle"></i> Asked by: <strong>${q.name}</strong>
+          </div>
           
           <div id="ans-display-${q.id}" class="ans-section">
-            <span class="ans-label">Answered</span>
-            <div class="ans-content">${q.answer}</div>
-            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
-              <button class="btn-del" onclick="deleteQuestion('${q.id}')">Delete</button>
-              <button class="btn-primary" style="padding:6px 15px; font-size:0.75rem;" onclick="showEditMode('${q.id}', '${q.answer.replace(/'/g, "\\'").replace(/\n/g, "\\n")}')">Edit Answer</button>
+            <span class="ans-label">Verified Answer</span>
+            <div class="ans-content" style="line-height:1.7; color:var(--admin-text-main)">${q.answer}</div>
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:1.5rem; border-top:1px solid #e2e8f0; padding-top:1rem;">
+              <button class="btn-del" onclick="deleteQuestion('${q.id}')"><i class="fas fa-trash"></i> Delete</button>
+              <button class="btn-primary" style="padding:8px 18px; font-size:0.8rem;" onclick="showEditMode('${q.id}', '${q.answer.replace(/'/g, "\\'").replace(/\n/g, "\\n")}')"><i class="fas fa-edit"></i> Edit Answer</button>
             </div>
           </div>
           
-          <div id="ans-edit-${q.id}" style="display:none; margin-top:1rem;">
-            <label style="font-weight:bold; font-size:0.85rem; display:block; margin-bottom:0.5rem">Edit Answer:</label>
-            <textarea id="edit-text-${q.id}" class="form-input" rows="4"></textarea>
-            <div style="display:flex; justify-content:flex-end; gap:10px;">
-              <button onclick="cancelEdit('${q.id}')" style="background:#bdc3c7; color:white; border:none; padding:5px 12px; border-radius:4px; cursor:pointer;">Cancel</button>
-              <button class="btn-primary" onclick="updateAnswer('${q.id}')">Update Answer</button>
+          <div id="ans-edit-${q.id}" style="display:none; margin-top:1.5rem; background:#fff; padding:1rem; border-radius:12px; border:1px solid var(--admin-primary)">
+            <label style="font-weight:700; font-size:0.9rem; display:block; margin-bottom:1rem; color:var(--admin-primary)">Edit Spiritual Response:</label>
+            <textarea id="edit-text-${q.id}" class="form-input" rows="6" style="margin-bottom:1rem; border-color:var(--admin-primary)"></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:12px;">
+              <button onclick="cancelEdit('${q.id}')" style="background:#f1f5f9; color:#475569; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600;">Cancel</button>
+              <button class="btn-primary" onclick="updateAnswer('${q.id}')">Save Changes</button>
             </div>
           </div>
         </div>
       `).join('');
-
     }
   } catch (err) {
     console.error('Error loading questions:', err);
