@@ -2,6 +2,40 @@
 let isLoggedIn = false;
 
 // ─── INIT ───
+
+// ─── ADMIN UX EXPERIENCES ───
+function showAdminToast(msg, type = 'error') {
+  const container = document.getElementById('admin-toast-container');
+  if(!container) return;
+  const toast = document.createElement('div');
+  toast.className = `admin-toast ${type}`;
+  
+  const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-exclamation-circle"></i>';
+  toast.innerHTML = `${icon} <span>${msg}</span>`;
+  
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('fade-out');
+    setTimeout(() => toast.remove(), 400); // Wait for transition
+  }, 3500);
+}
+
+function renderEmptyState(containerId, iconClass, title, message) {
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  container.innerHTML = `
+    <tr>
+      <td colspan="100%">
+        <div class="admin-empty-state stagger-1">
+          <i class="${iconClass}"></i>
+          <h3>${title}</h3>
+          <p>${message}</p>
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Check auth
   try {
@@ -17,22 +51,57 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 let categories = [];
 
-async function refreshCategoryDropdowns() {
-  const res = await fetch('/api/categories');
-  categories = await res.json();
+async function refreshCategoryDropdowns(type = 'bayan') {
+  const res = await fetch(`/api/categories?type=${type}`);
+  const filteredCategories = await res.json();
   
-  const ids = ['add-bayan-cat', 'add-video-cat', 'add-course-cat', 'add-notif-type'];
-  ids.forEach(id => {
+  // Find which dropdowns to update based on type
+  let targetIds = [];
+  if (type === 'bayan') targetIds = ['add-bayan-cat'];
+  else if (type === 'video') targetIds = ['add-video-cat'];
+  else if (type === 'course') targetIds = ['add-course-cat'];
+  else if (type === 'question') targetIds = ['ans-cat-global']; // New global selector or in-place
+  else if (type === 'notification') targetIds = ['add-notif-type'];
+
+  targetIds.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
-      el.innerHTML = categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+      el.innerHTML = filteredCategories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
     }
   });
+  
+  return filteredCategories;
 }
 
-function openCatModal() {
+let activeQuickAddType = 'bayan';
+
+async function openCatModal(type = 'bayan') {
+  activeQuickAddType = type;
   document.getElementById('cat-modal').classList.add('active');
   document.getElementById('quick-cat-name').focus();
+  
+  // Render existing
+  const cats = await refreshCategoryDropdowns(type);
+  const list = document.getElementById('quick-cat-list');
+  if (cats.length === 0) {
+    list.innerHTML = '<p style="font-size:0.75rem; color:#95a5a6; text-align:center;">No categories yet.</p>';
+  } else {
+    list.innerHTML = cats.map(c => `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:8px; background:#f8fafc; margin-bottom:4px; border-radius:6px; font-size:0.85rem;">
+        <span>${c.icon} ${c.name}</span>
+        <button onclick="deleteQuickAddCategory('${c.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:0.8rem;"><i class="fas fa-trash"></i></button>
+      </div>
+    `).join('');
+  }
+}
+
+async function deleteQuickAddCategory(id) {
+  if (!confirm('Are you sure you want to delete this category?')) return;
+  const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+  if (res.ok) {
+    await refreshCategoryDropdowns(activeQuickAddType);
+    openCatModal(activeQuickAddType); // Refresh list
+  }
 }
 function closeCatModal() {
   document.getElementById('cat-modal').classList.remove('active');
@@ -43,16 +112,16 @@ function closeCatModal() {
 async function submitQuickAddCategory() {
   const name = document.getElementById('quick-cat-name').value.trim();
   const icon = document.getElementById('quick-cat-icon').value.trim() || '▪';
-  if (!name) return alert('Name required');
+  if (!name) return showAdminToast('Name required');
 
   const res = await fetch('/api/categories', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, icon, order: 0 })
+    body: JSON.stringify({ name, icon, order: 0, type: activeQuickAddType })
   });
 
   if (res.ok) {
-    await refreshCategoryDropdowns();
+    await refreshCategoryDropdowns(activeQuickAddType);
     closeCatModal();
   }
 }
@@ -117,7 +186,6 @@ function showAdminTab(tabId, el) {
   if (tabId === 'tab-questions') loadQuestions();
   if (tabId === 'tab-notifications') loadNotifications();
   if (tabId === 'tab-dashboard') loadDashboardStats();
-  if (tabId === 'tab-categories') loadCategories();
 }
 
 
@@ -144,7 +212,7 @@ async function loadDashboardStats() {
 async function fetchMetadata(type) {
   const urlEl = document.getElementById(`add-${type}-url`);
   const url = urlEl.value.trim();
-  if (!url) return alert('Please paste a URL first.');
+  if (!url) return showAdminToast('Please paste a URL first.');
 
   const btn = event.currentTarget;
   btn.classList.add('loading');
@@ -160,11 +228,11 @@ async function fetchMetadata(type) {
         autoDetectCategory(type, data.title);
       }
     } else {
-      alert('Could not fetch metadata for this link.');
+      showAdminToast('Could not fetch metadata for this link.');
     }
   } catch (err) {
     console.error(err);
-    alert('Fetch failed.');
+    showAdminToast('Fetch failed.');
   } finally {
     btn.classList.remove('loading');
     btn.innerHTML = '<i class="fas fa-magic"></i> Fetch Info';
@@ -186,7 +254,13 @@ function autoDetectCategory(type, title) {
 
 // ─── LOAD DATA ───
 async function loadAdminData() {
-  await refreshCategoryDropdowns();
+  await Promise.all([
+    refreshCategoryDropdowns('bayan'),
+    refreshCategoryDropdowns('video'),
+    refreshCategoryDropdowns('course'),
+    refreshCategoryDropdowns('question'),
+    refreshCategoryDropdowns('notification')
+  ]);
   loadDashboardStats();
   loadBayans();
   loadVideos();
@@ -202,6 +276,9 @@ async function loadBayans() {
   const res = await fetch('/api/bayans');
   const items = await res.json();
   const tb = document.getElementById('table-bayans');
+  if (items.length === 0) {
+    renderEmptyState('table-bayans', 'fas fa-headphones', 'No Bayans Uploaded', 'Your library is empty. Add a new audio bayan above.');
+  } else {
     tb.innerHTML = items.map(b => `
       <tr>
         <td style="font-weight:600">${b.title}</td>
@@ -210,7 +287,7 @@ async function loadBayans() {
         <td><button class="btn-del" onclick="deleteBayan('${b.id}')">Delete</button></td>
       </tr>
     `).join('');
-
+  }
 }
 
 async function addBayan() {
@@ -220,7 +297,7 @@ async function addBayan() {
   let duration = document.getElementById('add-bayan-dur').value || '00:00';
   const date = new Date().toISOString().split('T')[0];
 
-  if (!title || !url) return alert('Title and URL required');
+  if (!title || !url) return showAdminToast('Title and URL required');
 
   await fetch('/api/bayans', {
     method: 'POST',
@@ -231,6 +308,7 @@ async function addBayan() {
   document.getElementById('add-bayan-title').value = '';
   document.getElementById('add-bayan-url').value = '';
   document.getElementById('add-bayan-dur').value = '';
+  showAdminToast('Audio Bayan published successfully!', 'success');
   loadBayans();
 }
 
@@ -245,14 +323,18 @@ async function loadVideos() {
   const res = await fetch('/api/videos');
   const items = await res.json();
   const tb = document.getElementById('table-videos');
+  if (items.length === 0) {
+    renderEmptyState('table-videos', 'fas fa-video', 'No Videos Uploaded', 'Share visual guidance by adding a video above.');
+  } else {
     tb.innerHTML = items.map(v => `
       <tr>
         <td style="font-weight:600">${v.title}</td>
-        <td style="font-family:monospace; color:var(--admin-secondary)">${v.videoId}</td>
+        <td style="font-family:monospace; color:var(--admin-secondary)"><a href="https://youtu.be/${v.ytId}" target="_blank">Play <i class="fas fa-external-link-alt"></i></a></td>
         <td style="color:var(--admin-text-muted)">${v.date}</td>
         <td><button class="btn-del" onclick="deleteVideo('${v.id}')">Delete</button></td>
       </tr>
     `).join('');
+  }
 
 }
 
@@ -261,10 +343,10 @@ async function addVideo() {
   const url = document.getElementById('add-video-url').value;
   const date = new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 
-  if (!title || !url) return alert('Title and URL required');
+  if (!title || !url) return showAdminToast('Title and URL required');
 
   const ytId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([^&\n?#]+)/);
-  if (!ytId) return alert('Invalid YT URL');
+  if (!ytId) return showAdminToast('Invalid YT URL');
 
   await fetch('/api/videos', {
     method: 'POST',
@@ -281,6 +363,7 @@ async function addVideo() {
 
   document.getElementById('add-video-title').value = '';
   document.getElementById('add-video-url').value = '';
+  showAdminToast('Video guidance added successfully!', 'success');
   loadVideos();
 }
 
@@ -295,6 +378,9 @@ async function loadCourses() {
   const res = await fetch('/api/courses');
   const items = await res.json();
   const tb = document.getElementById('table-courses');
+  if (items.length === 0) {
+    renderEmptyState('table-courses', 'fas fa-book-open', 'No Courses Running', 'Launch an online or physical course here.');
+  } else {
     tb.innerHTML = items.map(c => `
       <tr>
         <td style="font-weight:600">${c.title}</td>
@@ -303,6 +389,7 @@ async function loadCourses() {
         <td><button class="btn-del" onclick="deleteCourse('${c.id}')">Delete</button></td>
       </tr>
     `).join('');
+  }
 
 }
 
@@ -310,36 +397,52 @@ async function addCourse() {
   const title = document.getElementById('add-course-title').value;
   const arabicTitle = document.getElementById('add-course-arabic').value;
   const description = document.getElementById('add-course-desc').value;
-  const icon = document.getElementById('add-course-icon').value || '📚';
   const status = document.getElementById('add-course-status').value || 'Ongoing';
   const duration = document.getElementById('add-course-dur').value || 'TBA';
   const location = document.getElementById('add-course-loc').value || 'Online';
+  const category = document.getElementById('add-course-cat').value;
+  const thumbnailInput = document.getElementById('add-course-thumbnail');
 
-  if (!title || !description) return alert('Title and Description required');
+  if (!title || !description) return showAdminToast('Title and Description required');
 
-  await fetch('/api/courses', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ 
-      title, 
-      arabicTitle, 
-      description, 
-      icon, 
-      category: document.getElementById('add-course-cat').value,
-      status, 
-      duration, 
-      location 
-    })
-  });
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('arabicTitle', arabicTitle);
+  formData.append('description', description);
+  formData.append('category', category);
+  formData.append('status', status);
+  formData.append('duration', duration);
+  formData.append('location', location);
+  
+  if (thumbnailInput.files.length > 0) {
+    if (thumbnailInput.files[0].size > 2 * 1024 * 1024) {
+      return showAdminToast('Thumbnail size exceeds 2MB limit.');
+    }
+    formData.append('thumbnail', thumbnailInput.files[0]);
+  }
 
+  try {
+    const response = await fetch('/api/courses', {
+      method: 'POST',
+      body: formData // Fetch handles multipart boundaries natively
+    });
+    
+    if (!response.ok) {
+      const errData = await response.json();
+      return showAdminToast(errData.error || 'Upload failed');
+    }
 
-  document.getElementById('add-course-title').value = '';
-  document.getElementById('add-course-arabic').value = '';
-  document.getElementById('add-course-desc').value = '';
-  document.getElementById('add-course-icon').value = '';
-  document.getElementById('add-course-status').value = '';
-  document.getElementById('add-course-dur').value = '';
-  document.getElementById('add-course-loc').value = '';
+    document.getElementById('add-course-title').value = '';
+    document.getElementById('add-course-arabic').value = '';
+    document.getElementById('add-course-desc').value = '';
+    document.getElementById('add-course-status').value = '';
+    document.getElementById('add-course-dur').value = '';
+    document.getElementById('add-course-loc').value = '';
+    thumbnailInput.value = ''; // Reset file input
+    showAdminToast('Course published successfully!', 'success');
+  } catch(err) {
+    showAdminToast('A network error occurred.');
+  }
   loadCourses();
 }
 
@@ -353,16 +456,29 @@ async function deleteCourse(id) {
 // ─── QUESTIONS ───
 async function loadQuestions() {
   try {
-    const res = await fetch('/api/questions');
-    const items = await res.json();
+    const [qRes, cRes] = await Promise.all([
+      fetch('/api/questions'),
+      fetch('/api/categories?type=question')
+    ]);
+    const items = await qRes.json();
+    const questionCategories = await cRes.json();
     
     const pending = items.filter(q => !q.answered);
     const answered = items.filter(q => q.answered);
 
+    // Pass categories to each pending item
+    pending.forEach(q => q.questionCategories = questionCategories);
+
     // Render Pending
     const pendingList = document.getElementById('pending-questions-list');
     if (pending.length === 0) {
-      pendingList.innerHTML = '<p style="text-align:center; color:#95a5a6; padding:2rem;">No pending questions! 🙌</p>';
+      pendingList.innerHTML = `
+        <div class="admin-empty-state stagger-1">
+          <i class="fas fa-check-double"></i>
+          <h3>All Caught Up!</h3>
+          <p>There are no pending questions to answer at the moment.</p>
+        </div>
+      `;
     } else {
       pendingList.innerHTML = pending.map(q => `
         <div class="q-card">
@@ -372,13 +488,13 @@ async function loadQuestions() {
           </h4>
           <div class="q-text">${q.question}</div>
           <div style="color:var(--admin-text-muted); font-size:0.85rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:8px;">
-            <i class="fas fa-user-circle"></i> From seeker: <strong>${q.name}</strong>
+            <i class="fas fa-user-circle"></i> From seeker: <strong>Anonymous Seeker</strong>
           </div>
           
           <div class="form-group" style="margin-bottom:1.5rem; background:#f8fafc; padding:1rem; border-radius:12px;">
-            <label class="form-label" style="font-size:0.75rem; color:var(--admin-secondary)">Categorize Quest:</label>
+            <label class="form-label" style="font-size:0.75rem; color:var(--admin-secondary)">Categorize Quest: <a href="javascript:void(0)" onclick="openCatModal('question')" style="font-size:0.65rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
             <select id="ans-cat-${q.id}" class="form-input" style="border-color:var(--admin-border)">
-              ${categories.map(c => `<option value="${c.name}" ${c.name === q.category ? 'selected' : ''}>${c.name}</option>`).join('')}
+              ${q.questionCategories.map(c => `<option value="${c.name}" ${c.name === q.category ? 'selected' : ''}>${c.name}</option>`).join('')}
             </select>
           </div>
 
@@ -396,7 +512,13 @@ async function loadQuestions() {
     // Render Answered
     const answeredList = document.getElementById('answered-questions-list');
     if (answered.length === 0) {
-      answeredList.innerHTML = '<p style="text-align:center; color:#95a5a6; padding:2rem;">No answered questions yet.</p>';
+      answeredList.innerHTML = `
+        <div class="admin-empty-state stagger-2">
+          <i class="fas fa-inbox"></i>
+          <h3>No Answered Questions</h3>
+          <p>Published answers to seeker questions will appear here.</p>
+        </div>
+      `;
     } else {
       answeredList.innerHTML = answered.map(q => `
         <div class="q-card answered" id="q-card-${q.id}">
@@ -406,7 +528,7 @@ async function loadQuestions() {
           </h4>
           <div class="q-text">${q.question}</div>
           <div style="color:var(--admin-text-muted); font-size:0.85rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:8px;">
-            <i class="fas fa-user-circle"></i> Asked by: <strong>${q.name}</strong>
+            <i class="fas fa-user-circle"></i> Asked by: <strong>Anonymous Seeker</strong>
           </div>
           
           <div id="ans-display-${q.id}" class="ans-section">
@@ -436,7 +558,7 @@ async function loadQuestions() {
 
 async function submitAnswer(id) {
   const answer = document.getElementById('ans-text-' + id).value.trim();
-  if (!answer) return alert('Please enter an answer.');
+  if (!answer) return showAdminToast('Please enter an answer.');
 
   const category = document.getElementById('ans-cat-' + id).value;
 
@@ -463,7 +585,7 @@ function cancelEdit(id) {
 
 async function updateAnswer(id) {
   const newAnswer = document.getElementById(`edit-text-${id}`).value.trim();
-  if (!newAnswer) return alert('Answer cannot be empty.');
+  if (!newAnswer) return showAdminToast('Answer cannot be empty.');
 
   await fetch(`/api/questions/${id}/answer`, {
     method: 'PUT',
@@ -487,6 +609,9 @@ async function loadNotifications() {
   const res = await fetch('/api/notifications');
   const items = await res.json();
   const tb = document.getElementById('table-notifications');
+  if (items.length === 0) {
+    renderEmptyState('table-notifications', 'fas fa-bell', 'No Active Alerts', 'Keep your community informed. Send a push notification above.');
+  } else {
     tb.innerHTML = items.map(n => `
       <tr>
         <td style="font-weight:600">${n.title}</td>
@@ -495,6 +620,7 @@ async function loadNotifications() {
         <td><button class="btn-del" onclick="deleteNotification('${n.id}')">Delete</button></td>
       </tr>
     `).join('');
+  }
 
 }
 
@@ -506,7 +632,7 @@ async function addNotification() {
   const body = document.getElementById('add-notif-body').value;
   const date = new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 
-  if (!title || !body) return alert('Title and body required');
+  if (!title || !body) return showAdminToast('Title and body required');
 
   await fetch('/api/notifications', {
     method: 'POST',
@@ -516,6 +642,7 @@ async function addNotification() {
 
   document.getElementById('add-notif-title').value = '';
   document.getElementById('add-notif-body').value = '';
+  showAdminToast('Notification published successfully!', 'success');
   loadNotifications();
 }
 
@@ -531,14 +658,18 @@ async function loadCategories() {
   const items = await res.json();
   categories = items;
   const tb = document.getElementById('table-categories');
-  tb.innerHTML = items.map(c => `
-    <tr>
-      <td style="font-weight:600">${c.name}</td>
-      <td style="font-size:1.2rem">${c.icon}</td>
-      <td>${c.order}</td>
-      <td><button class="btn-del" onclick="deleteCategory('${c.id}')">Delete</button></td>
-    </tr>
-  `).join('');
+  if (items.length === 0) {
+    renderEmptyState('table-categories', 'fas fa-tags', 'No Categories Defined', 'Organize your content by adding categories.');
+  } else {
+    tb.innerHTML = items.map(c => `
+      <tr>
+        <td style="font-weight:600">${c.name}</td>
+        <td style="font-size:1.2rem">${c.icon}</td>
+        <td>${c.order}</td>
+        <td><button class="btn-del" onclick="deleteCategory('${c.id}')">Delete</button></td>
+      </tr>
+    `).join('');
+  }
 }
 
 async function addCategory() {
@@ -546,7 +677,7 @@ async function addCategory() {
   const icon = document.getElementById('add-cat-icon').value.trim() || '▪';
   const order = parseInt(document.getElementById('add-cat-order').value) || 0;
 
-  if (!name) return alert('Category name is required');
+  if (!name) return showAdminToast('Category name is required');
 
   await fetch('/api/categories', {
     method: 'POST',
@@ -558,6 +689,7 @@ async function addCategory() {
   document.getElementById('add-cat-icon').value = '';
   document.getElementById('add-cat-order').value = '0';
   
+  showAdminToast('Category added successfully!', 'success');
   await refreshCategoryDropdowns();
   loadCategories();
 }

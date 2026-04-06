@@ -1,5 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Cinzel:wght@400;600;700&family=Noto+Naskh+Arabic:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap');
 
+/* LOCAL FONTS */
+@font-face {
+  font-family: 'Nabi';
+  src: url('../fonts/Nabi.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'NotoUrdu';
+  src: url('../fonts/NotoNastaliqUrdu-VariableFont_wght.ttf') format('truetype');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --black:        #0A0A0A;
   --black-soft:   #111111;
@@ -17,10 +34,10 @@
   --shadow-sm:    0 2px 8px rgba(0,0,0,0.06);
   --shadow-md:    0 4px 20px rgba(0,0,0,0.10);
   --shadow-lg:    0 8px 40px rgba(0,0,0,0.15);
-  --font-arabic-naskh: 'Noto Naskh Arabic', 'Amiri', 'Traditional Arabic', serif;
-  --font-arabic-thuluth: 'DecoType Thuluth', 'A Thuluth', 'Reem Kufi', var(--font-arabic-naskh);
+  --font-arabic-naskh: 'Nabi', 'Noto Naskh Arabic', 'Amiri', serif;
+  --font-arabic-thuluth: 'Nabi', 'DecoType Thuluth', 'A Thuluth', var(--font-arabic-naskh);
   --font-arabic-diwani: 'Diwani Letter', 'Diwani Bent', 'Aref Ruqaa', cursive;
-  --font-urdu: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Nafees Nastaleeq', serif;
+  --font-urdu: 'NotoUrdu', 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -392,6 +409,39 @@ footer { background: var(--black); color: var(--white); border-top: 1px solid #2
   .hamburger { display: flex; }
 }
 
+/* WELCOME SPLASH */
+#welcome-splash {
+  position: fixed; inset: 0;
+  background: var(--black);
+  z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#welcome-splash.fade-out {
+  opacity: 0; pointer-events: none; transform: scale(1.1); filter: blur(20px);
+}
+.splash-content { text-align: center; color: var(--white); animation: splashIn 1.5s ease-out forwards; }
+@keyframes splashIn { from { opacity:0; transform: translateY(20px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
+
+.splash-arabic { font-family: 'Nabi', serif; font-size: clamp(2.5rem, 8vw, 6rem); color: var(--gold); margin-bottom: 0.5rem; letter-spacing: 2px; }
+.splash-welcome { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--gold-light); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 0.5rem; opacity: 0.9; }
+.splash-title { font-family: 'Cinzel', serif; font-size: clamp(1.2rem, 3vw, 2.5rem); letter-spacing: 5px; text-transform: uppercase; margin-bottom: 0.2rem; background: linear-gradient(to right, #B8932A, #F5E6C0, #B8932A); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.splash-subtitle { font-family: var(--font-urdu); font-size: 1.5rem; color: rgba(255,255,255,0.4); margin-bottom: 2rem; }
+
+.splash-loader { width: 40px; height: 1px; background: var(--gold); margin: 0 auto; animation: loaderExpand 2.5s ease-in-out infinite; box-shadow: 0 0 15px var(--gold); opacity: 0.6; }
+@keyframes loaderExpand { 0%,100% { width: 20px; opacity: 0.2; } 50% { width: 120px; opacity: 0.8; } }
+
 .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-light); }
 .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; }
 .empty-state p { font-size: 0.9rem; }
+/* ═════ COURSE THUMBNAILS ═════ */
+.course-thumbnail {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 16px 16px 0 0;
+  margin: -2.5rem -2.5rem 2rem -2.5rem;
+  width: calc(100% + 5rem);
+  max-width: none;
+  border-bottom: 2px solid var(--gold);
+}

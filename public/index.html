@@ -15,6 +15,17 @@
 </head>
 <body>
 
+<!-- ═══════════════════════ WELCOME SPLASH ═══════════════════════ -->
+<div id="welcome-splash">
+  <div class="splash-content">
+    <div class="splash-arabic">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
+    <div class="splash-welcome">Welcome to</div>
+    <div class="splash-title">Khanqah Maseehul Ummat</div>
+    <div class="splash-subtitle">خانقاه مسیح الامت</div>
+    <div class="splash-loader"></div>
+  </div>
+</div>
+
 <div class="arabesque-bg"></div>
 
 <!-- ═══════════════════════ NAVBAR ═══════════════════════ -->
@@ -33,6 +44,7 @@
 
     <ul class="nav-links">
       <li><a href="#" class="active" onclick="showSection('home', this)">Home</a></li>
+      <li><a href="#" onclick="showSection('mamulaat', this)">Mamulaat</a></li>
       <li><a href="#" onclick="showSection('notifications', this)">Notifications</a></li>
       <li><a href="#" onclick="showSection('courses', this)">Courses</a></li>
       <li><a href="#" onclick="showSection('audio', this)">Audio</a></li>
@@ -56,7 +68,7 @@
 <!-- ═══════════════════════ HOME ═══════════════════════ -->
 <section id="home" class="page-section active">
   <div class="hero">
-    <div class="hero-ornament">✦ ✦ ✦</div>
+<!-- Ornament removed as requested -->
     <!-- Hero Image: place as images/hero.jpg or images/banner.jpg -->
      <!-- <img src="images/hero.jpg" alt="Khanqah Maseehul Ummat"> -->
     <div class="hero-arabic">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
@@ -96,6 +108,11 @@
   <div class="content-wrap">
     <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap:1rem; margin-bottom:3rem;">
       
+      <div class="action-card" onclick="showSection('mamulaat', null)">
+        <div class="action-icon"><i class="fas fa-praying-hands"></i></div>
+        <h3>Mamulaat</h3>
+        <p>Daily Practices</p>
+      </div>
       <div class="action-card" onclick="showSection('notifications', null)">
         <div class="action-icon"><i class="fas fa-bell"></i></div>
         <h3>Notifications</h3>
@@ -146,6 +163,66 @@
         "O Allah, make us among the righteous."
       </p>
     </div>
+  </div>
+</section>
+
+</section>
+
+<!-- ═══════════════════════ MAMULAAT ═══════════════════════ -->
+<section id="mamulaat" class="page-section">
+  <div class="section-header">
+    <span class="section-tag">Spiritual Routines</span>
+    <h2 class="section-title">Mamulaat <span>e Youmiya</span></h2>
+    <div class="section-line"></div>
+    <p class="section-desc">Daily spiritual practices and dhikr for purification of the heart.</p>
+  </div>
+  <div class="content-wrap" style="max-width: 850px; margin: 0 auto; background: var(--white); border: 2px solid var(--gold); border-radius: 12px; padding: 3rem 2.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+    <h3 style="font-family: 'NotoUrdu', serif; font-size: 2.8rem; text-align: center; color: var(--black); margin-bottom: 1.5rem;">معمولات یومیہ</h3>
+    <p style="font-family: 'NotoUrdu', serif; font-size: 1.3rem; line-height: 2.2; color: var(--text-body); text-align: right; direction: rtl; margin-bottom: 2.5rem; border-bottom: 1px dashed #ddd; padding-bottom: 1.5rem;">
+      کسی وقت تنہائی میں بیٹھ کر اس دھیان کے ساتھ کہ میرا اللہ مجھے دیکھ رہا ہے اور اس نیت کے ساتھ کہ اللہ تعالیٰ کی محبت میرے دل میں آ جائے اور غیر اللہ کی محبت میرے دل سے نکل جائے، معمولی آواز کے ساتھ:
+    </p>
+
+    <div style="font-family: 'Nabi', sans-serif; font-size: 1.8rem; line-height: 2.2; color: var(--black); text-align: right; direction: rtl;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding: 1.2rem 0;">
+        <span>أَسْتَغْفِرُ اللهَ الْعَظِيمَ</span>
+        <span style="font-family: 'NotoUrdu', serif; font-size: 1.15rem; color: var(--secondary);">100 مرتبہ</span>
+      </div>
+      <div style="display: flex; flex-direction: column; border-bottom: 1px solid #f1f5f9; padding: 1.2rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>لَا إِلَٰهَ إِلَّا اللَّهُ</span>
+          <span style="font-family: 'NotoUrdu', serif; font-size: 1.15rem; color: var(--secondary);">200-500 مرتبہ</span>
+        </div>
+        <div style="font-family: 'NotoUrdu', serif; font-size: 1.05rem; color: var(--text-muted); margin-top: 0.5rem;">(درمیان میں کبھی مُحَمَّدٌ رَّسُولُ اللَّهِ ﷺ بھی ملا کر پڑھا کریں)</div>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding: 1.2rem 0;">
+        <span>اللَّهُ اللَّهُ</span>
+        <span style="font-family: 'NotoUrdu', serif; font-size: 1.15rem; color: var(--secondary);">500-1000 مرتبہ</span>
+      </div>
+      
+      <div style="height: 2px; background: rgba(189, 160, 48, 0.3); margin: 2rem 0; width: 60%; margin-left: auto; margin-right: auto;"></div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding: 1.2rem 0;">
+        <span>سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ</span>
+        <span style="font-family: 'NotoUrdu', serif; font-size: 1.15rem; color: var(--secondary);">100 مرتبہ</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding: 1.2rem 0;">
+        <span>سُبْحَانَ اللَّهِ وَالْحَمْدُ لِلَّهِ وَلَا إِلَٰهَ إِلَّا اللَّهُ وَاللَّهُ أَكْبَرُ</span>
+        <span style="font-family: 'NotoUrdu', serif; font-size: 1.15rem; color: var(--secondary);">100 مرتبہ</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding: 1.2rem 0;">
+        <span>لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ</span>
+        <span style="font-family: 'NotoUrdu', serif; font-size: 1.15rem; color: var(--secondary);">100 مرتبہ</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding: 1.2rem 0;">
+        <span>صَلَّى اللَّهُ عَلَى النَّبِيِّ الْأُمِّيِّ</span>
+        <span style="font-family: 'NotoUrdu', serif; font-size: 1.15rem; color: var(--secondary);">300-500 مرتبہ</span>
+      </div>
+    </div>
+    
+    <div style="font-family: 'NotoUrdu', serif; font-size: 1.2rem; line-height: 1.8; color: #1e293b; text-align: center; direction: rtl; margin-top: 2rem; background: rgba(16, 185, 129, 0.05); padding: 1.5rem; border-radius: 8px;">
+      خالی اوقات میں حسب حال استغفار، درود شریف اور تیسرا کلمہ
+    </div>
+
   </div>
 </section>
 
@@ -257,10 +334,7 @@
         <div class="ask-form">
           <div class="form-title">✍️ Submit Your Question</div>
 
-          <div class="form-row">
-            <label class="form-label">Your Name</label>
-            <input type="text" id="q-name" class="form-input" placeholder="e.g. Muhammad Ali">
-          </div>
+          <!-- Name field removed for anonymity -->
 
           <div class="form-row">
             <label class="form-label">Your Question</label>
@@ -268,11 +342,10 @@
           </div>
 
           <div class="form-row">
-            <label class="form-label">Category (optional — will be auto-detected)</label>
+            <label class="form-label">Category (Required Selection)</label>
             <select id="q-cat-select" class="form-select">
-              <!-- Dynamically populated -->
+              <option value="" disabled selected>-- Select a Category --</option>
             </select>
-            <span class="auto-detect-badge" id="auto-cat-badge" style="display:none"></span>
           </div>
 
 

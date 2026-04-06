@@ -22,19 +22,21 @@ const store = {
 };
 
 
-let dynamicCategories = [];
+let bayanCategories = [];
+let questionCategories = [];
 
 
 // ─── FETCH INITIAL DATA ───
 async function initData() {
   try {
-    const [bRes, vRes, qRes, nRes, cRes, catRes] = await Promise.all([
+    const [bRes, vRes, qRes, nRes, cRes, bCatRes, qCatRes] = await Promise.all([
       fetch('/api/bayans'),
       fetch('/api/videos'),
       fetch('/api/questions'),
       fetch('/api/notifications'),
       fetch('/api/courses'),
-      fetch('/api/categories')
+      fetch('/api/categories?type=bayan'),
+      fetch('/api/categories?type=question')
     ]);
 
 
@@ -44,7 +46,8 @@ async function initData() {
     store.questions = await qRes.json();
     store.notifications = await nRes.json();
     store.courses = await cRes.json();
-    dynamicCategories = await catRes.json();
+    bayanCategories = await bCatRes.json();
+    questionCategories = await qCatRes.json();
 
 
     renderNotifications();
@@ -83,26 +86,7 @@ function renderNotifications() {
   }
 }
 // ─── COURSES ───
-// Map emoji shortcuts to Font Awesome classes for professional icons
-const COURSE_ICON_MAP = {
-  '📚': 'fas fa-book-open',
-  '💎': 'fas fa-gem',
-  '🌿': 'fas fa-scroll',
-  '✨': 'fas fa-star-and-crescent',
-  '🌙': 'fas fa-moon',
-  '📖': 'fas fa-quran',
-  '📿': 'fas fa-infinity',
-  '🕌': 'fas fa-mosque',
-  '🌸': 'fas fa-seedling',
-  '🎓': 'fas fa-graduation-cap',
-  '🔑': 'fas fa-key',
-  '❤️': 'fas fa-heart',
-};
 
-function getCourseIconHtml(iconEmoji) {
-  const faClass = COURSE_ICON_MAP[iconEmoji] || 'fas fa-book-open';
-  return `<i class="${faClass}" style="font-size:2rem; color:var(--gold-light);"></i>`;
-}
 
 function renderCourses() {
   const grid = document.getElementById('courses-grid');
@@ -115,8 +99,9 @@ function renderCourses() {
 
   grid.innerHTML = store.courses.map(c => `
     <div class="course-card">
+      ${c.thumbnail ? `<img class="course-thumbnail" src="${c.thumbnail}" alt="${c.title}" loading="lazy">` : ''}
       <div class="course-header">
-        <div class="course-icon">${getCourseIconHtml(c.icon)}</div>
+        ${!c.thumbnail ? `<div class="course-icon"><i class="fas fa-book-open" style="font-size:2rem; color:var(--gold-light);"></i></div>` : ''}
         <div class="course-meta">
           <span>📅 ${c.status || 'Ongoing'}</span>
           <span>📍 ${c.location || 'Online'}</span>
@@ -183,7 +168,7 @@ function renderCategories() {
   const total = store.bayans.length;
   const list = document.getElementById('cat-list');
   
-  const cats = [{ name: 'All', icon: '☰' }, ...dynamicCategories];
+  const cats = [{ name: 'All', icon: '☰' }, ...bayanCategories];
   
   list.innerHTML = cats.map(c => `
     <li class="${c.name === activeCat ? 'active' : ''}" onclick="filterBayans('${c.name}', this)">
@@ -195,7 +180,7 @@ function renderCategories() {
 
 
 function getCatIcon(cat) {
-  const icons = { Tasawwuf:'✦', Ibaadat:'🕌', Akhlaq:'🌿', Quran:'📖', Ramadan:'🌙', Islah:'💫' };
+  const icons = { Tasawwuf:'✨', Ibaadat:'🕌', Akhlaq:'🌿', Quran:'📖', Ramadan:'🌙', Islah:'💫' };
   return icons[cat] || '▪';
 }
 
@@ -455,12 +440,28 @@ function closeVideoModal() {
 // ─── Q&A ───
 let qaFilter = 'All';
 
+const QA_ICON_MAP = {
+  'Tasawwuf': 'fas fa-infinity',
+  'Ibaadat': 'fas fa-mosque',
+  'Akhlaq': 'fas fa-heart',
+  'Quran': 'fas fa-quran',
+  'Ramadan': 'fas fa-moon',
+  'Islah': 'fas fa-star-and-crescent',
+  'Fiqh': 'fas fa-scale-balanced',
+  'General': 'fas fa-circle-question'
+};
+
+function getQaIconHtml(cat) {
+  const faClass = QA_ICON_MAP[cat] || 'fas fa-circle-question';
+  return `<i class="${faClass}"></i>`;
+}
+
 function renderQA() {
   const filtered = qaFilter === 'All' ? store.questions : store.questions.filter(q => q.category === qaFilter);
   const list = document.getElementById('qa-list');
 
   if (filtered.length === 0) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">❓</div><p>No questions in this category yet.</p></div>`;
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-circle-question"></i></div><p>No questions in this category yet.</p></div>`;
     return;
   }
 
@@ -469,17 +470,17 @@ function renderQA() {
     return `
     <div class="question-card" id="q-${qid}">
       <div class="question-header" onclick="toggleQuestion('${qid}')">
-        <div class="q-icon"><i class="fas fa-question"></i></div>
+        <div class="q-icon">${getQaIconHtml(q.category)}</div>
         <div class="q-content">
           <div class="q-text">${q.question}</div>
-          <div class="q-meta">👤 ${q.name} &nbsp;•&nbsp; <i class="fas fa-calendar-alt"></i> ${q.date}
+          <div class="q-meta"><!-- Name field removed for anonymity --> <i class="fas fa-calendar-alt"></i> ${q.date}
             <span class="q-cat-badge">${q.category}</span>
           </div>
         </div>
         <div class="q-expand-icon"><i class="fas fa-chevron-down"></i></div>
       </div>
       <div class="question-answer">
-        <span class="answer-label"><i class="fas fa-reply-all"></i> Answer from Khanqah</span>
+        <span class="answer-label"><i class="fas fa-reply-all"></i> Guidance from Khanqah</span>
         <div class="answer-text ${!q.answered ? 'pending' : ''}">${q.answered ? q.answer : '⏳ Answer pending. JazakAllah for your patience.'}</div>
       </div>
     </div>`;
@@ -506,7 +507,7 @@ function setQaFilter(cat, el) {
 }
 
 function renderQaFilterBtns() {
-  const cats = ['All', ...dynamicCategories.map(c => c.name)];
+  const cats = ['All', ...questionCategories.map(c => c.name)];
   document.getElementById('qa-filter-bar').innerHTML = cats.map(c => `
     <button class="qa-filter-btn ${c === 'All' ? 'active' : ''}" onclick="setQaFilter('${c}', this)">${c}</button>
   `).join('');
@@ -515,19 +516,29 @@ function renderQaFilterBtns() {
 
 // Submit Question mapped to Backend API
 async function submitQuestion() {
-  const name = document.getElementById('q-name').value.trim();
   const question = document.getElementById('q-text').value.trim();
   const catSelect = document.getElementById('q-cat-select');
-  const manualCat = catSelect ? catSelect.value : '';
+  const category = catSelect ? catSelect.value : '';
 
-  if (!name || !question) { alert('Please enter your name and question.'); return; }
+  if (!question) { alert('Please enter your question.'); return; }
+  if (!category) { alert('Please select a category for your question.'); return; }
 
-  const badge = document.getElementById('auto-cat-badge');
-  badge.textContent = '🔍 Assigning category...';
-  badge.style.display = 'inline-block';
+  // 🛡️ Smart Duplicate Detection
+  const existing = store.questions.find(q => q.question.toLowerCase() === question.toLowerCase());
+  if (existing) {
+    showBanner('Wait! This question has already been asked. Scrolling you to the answer...');
+    showSection('qa', null); // Ensure we are on Q&A
+    setTimeout(() => {
+      const el = document.getElementById(`q-${existing.id || existing._id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('open');
+      }
+    }, 500);
+    return;
+  }
 
-  let category = manualCat || autoDetectQaCategoryLocal(question);
-  badge.textContent = `📂 Category: ${category}`;
+  const name = 'Anonymous Seeker';
 
   try {
     const res = await fetch('/api/questions', {
@@ -546,7 +557,6 @@ async function submitQuestion() {
         document.getElementById('q-text').value = '';
         if (catSelect) catSelect.selectedIndex = 0;
         
-        setTimeout(() => { badge.textContent = ''; badge.style.display = 'none'; }, 3000);
         showBanner('Question submitted! JazakAllah Khair.');
         initData();
     } else {
@@ -559,26 +569,18 @@ async function submitQuestion() {
 }
 
 async function populateQaFormDropdown() {
-  const res = await fetch('/api/categories');
+  const res = await fetch('/api/categories?type=question');
   const cats = await res.json();
   const select = document.getElementById('q-cat-select');
   if (select) {
-    select.innerHTML = cats.map(c => `<option>${c.name}</option>`).join('');
+    select.innerHTML = '<option value="" disabled selected>-- Select a Category --</option>' + 
+      cats.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
   }
 }
 populateQaFormDropdown();
 
 
-function autoDetectQaCategoryLocal(text) {
-  const t = text.toLowerCase();
-  if (t.includes('tasawwuf') || t.includes('sheikh') || t.includes('murakab')) return 'Tasawwuf';
-  if (t.includes('salah') || t.includes('prayer') || t.includes('namaz')) return 'Ibaadat';
-  if (t.includes('quran') || t.includes('ayah') || t.includes('tafsir')) return 'Quran';
-  if (t.includes('halal') || t.includes('haram') || t.includes('permiss')) return 'Fiqh';
-  if (t.includes('ramadan') || t.includes('roza')) return 'Ramadan';
-  if (t.includes('character') || t.includes('akhlaq')) return 'Akhlaq';
-  return 'General';
-}
+/* Auto-detect legacy removed */
 
 // ─── NOTIFICATIONS BANNER ───
 function showBanner(msg) {
@@ -609,5 +611,10 @@ function renderStats() {
 // ─── INIT ───
 document.addEventListener('DOMContentLoaded', () => {
   initData();
-  setTimeout(() => showBanner('Welcome to Khanqah Maseehul Ummat!'), 1500);
+  
+  // Welcome Splash logic
+  setTimeout(() => {
+    const splash = document.getElementById('welcome-splash');
+    if (splash) splash.classList.add('fade-out');
+  }, 4000); // Show for 4 seconds
 });

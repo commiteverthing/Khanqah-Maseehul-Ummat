@@ -1,4 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+
+/* LOCAL FONTS */
+@font-face {
+  font-family: 'Nabi';
+  src: url('../fonts/Nabi.ttf') format('truetype');
+  font-weight: normal; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'NotoUrdu';
+  src: url('../fonts/NotoNastaliqUrdu-VariableFont_wght.ttf') format('truetype');
+  font-weight: 400 700; font-style: normal; font-display: swap;
+}
+
 :root {
+  /* LOCAL FONTS */
+  --font-arabic: 'Nabi', 'Noto Naskh Arabic', serif;
+  --font-urdu:   'NotoUrdu', 'Noto Nastaliq Urdu', serif;
+  
   --admin-sidebar-bg: #1e293b;
   --admin-sidebar-hover: #334155;
   --admin-primary: #10b981; /* Emerald */
@@ -143,8 +161,35 @@ body {
 .admin-main {
   margin-left: 280px;
   flex: 1;
-  padding: 3rem;
+  padding: 2rem 3rem 4rem;
   max-width: 1200px;
+}
+
+/* TOP HEADER */
+.admin-top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--admin-border);
+}
+.greeting h2 {
+  font-size: 1.4rem;
+  color: var(--admin-text-main);
+  margin: 0 0 0.4rem;
+  font-weight: 500;
+}
+.greeting h2 strong { font-weight: 800; color: var(--admin-sidebar-bg); }
+.greeting p { color: var(--admin-text-muted); font-size: 0.85rem; margin: 0; }
+.profile-area .profile-icon {
+  width: 44px; height: 44px;
+  background: var(--admin-primary);
+  color: white;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
 }
 
 /* TAB VISIBILITY - CRITICAL FOR NAVIGATION */
@@ -225,32 +270,35 @@ body {
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
-.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3); }
+.btn-primary:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2); }
 
 /* TABLES */
-.table-container { overflow-x: auto; background: white; border-radius: 12px; border: 1px solid var(--admin-border); }
+.table-container { overflow-x: auto; background: white; border-radius: 12px; border: 1px solid var(--admin-border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
 .admin-table { width: 100%; border-collapse: collapse; text-align: left; }
 .admin-table th {
   padding: 1rem 1.5rem;
   background: #f8fafc;
   color: var(--admin-text-muted);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 1.5px solid var(--admin-border);
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--admin-border);
 }
-.admin-table td { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--admin-border); font-size: 0.95rem; }
-.admin-table tr:hover { background: #f9fafb; }
+.admin-table td { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--admin-border); font-size: 0.9rem; color: #334155; }
+.admin-table tr { transition: background-color 0.2s; }
+.admin-table tr:hover { background: #f1f5f9; }
 .admin-table tr:last-child td { border-bottom: none; }
 
-.btn-del { color: #ef4444; background: #fee2e2; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
-.btn-del:hover { background: #ef4444; color: white; }
+.btn-del { color: #ef4444; background: #fee2e2; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; }
+.btn-del:hover { background: #ef4444; color: white; transform: scale(1.05); }
 
 /* Q&A CARDS (Simplified version for list) */
 .q-card {
@@ -300,4 +348,77 @@ body {
   .admin-sidebar li span { display: none; }
   .admin-main { margin-left: 80px; padding: 2rem 1.5rem; }
   .sidebar-header { text-align: center; padding: 2rem 0; font-size: 1rem; }
+  .admin-top-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
 }
+
+/* ─── TOAST NOTIFICATIONS ─── */
+#admin-toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.admin-toast {
+  background: var(--white);
+  border-left: 4px solid var(--admin-sidebar-bg);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  padding: 16px 20px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 300px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--admin-text-main);
+  animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  pointer-events: auto;
+}
+
+.admin-toast.success { border-left-color: var(--admin-primary); }
+.admin-toast.success i { color: var(--admin-primary); }
+.admin-toast.error { border-left-color: #ef4444; }
+.admin-toast.error i { color: #ef4444; }
+
+.admin-toast.fade-out { animation: fadeOutRight 0.4s ease forwards; }
+
+@keyframes slideInRight {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(120%); opacity: 0; }
+}
+
+/* ─── STAGGERED ANIMATIONS ─── */
+.stagger-1 { animation: fadeInTop 0.5s ease-out 0.1s both; }
+.stagger-2 { animation: fadeInTop 0.5s ease-out 0.2s both; }
+.stagger-3 { animation: fadeInTop 0.5s ease-out 0.3s both; }
+
+@keyframes fadeInTop {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── EMPTY STATES ─── */
+.admin-empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: transparent;
+  border: 2px dashed var(--admin-border);
+  border-radius: 12px;
+  color: var(--admin-text-muted);
+}
+.admin-empty-state i {
+  font-size: 3rem;
+  color: #cad5e2;
+  margin-bottom: 1rem;
+}
+.admin-empty-state h3 { font-size: 1.1rem; color: var(--admin-text-main); margin-bottom: 0.4rem; }
+.admin-empty-state p { font-size: 0.9rem; }

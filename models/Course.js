@@ -4,11 +4,11 @@ const courseSchema = new mongoose.Schema({
   title: String,
   arabicTitle: String,
   description: String,
-  icon: String, // e.g., '📿', '📖'
   category: { type: String, default: 'General' },
   status: String, // e.g., 'Ongoing', 'Weekly'
   duration: String, // e.g., '6 Months'
-  location: String  // e.g., 'Online & Onsite'
+  location: String, // e.g., 'Online & Onsite'
+  thumbnail: String // URL to uploaded image
 
 });
 

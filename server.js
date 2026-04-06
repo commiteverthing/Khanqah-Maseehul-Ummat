@@ -5,7 +5,30 @@ const cors = require('cors');
 const session = require('express-session');
 const path = require('path');
 const bcrypt = require('bcrypt');
+const multer = require('multer');
+const fs = require('fs');
 const db = require('./database');
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(__dirname, 'public/uploads/courses');
+    if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB Limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('Only images are allowed'));
+  }
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -181,12 +204,18 @@ app.get('/api/courses', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/courses', requireAdmin, async (req, res) => {
+app.post('/api/courses', requireAdmin, upload.single('thumbnail'), async (req, res) => {
   try {
-    const newCourse = new db.Course(req.body);
+    const courseData = req.body;
+    if (req.file) {
+      courseData.thumbnail = `/uploads/courses/${req.file.filename}`;
+    }
+    const newCourse = new db.Course(courseData);
     await newCourse.save();
     res.json({ success: true, id: newCourse._id });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.delete('/api/courses/:id', requireAdmin, async (req, res) => {
@@ -199,7 +228,9 @@ app.delete('/api/courses/:id', requireAdmin, async (req, res) => {
 // ─── CATEGORIES ───
 app.get('/api/categories', async (req, res) => {
   try {
-    const categories = await db.Category.find().sort({ order: 1 });
+    const filter = {};
+    if (req.query.type) filter.type = req.query.type;
+    const categories = await db.Category.find(filter).sort({ order: 1 });
     res.json(categories.map(mapId));
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -209,6 +240,14 @@ app.post('/api/categories', requireAdmin, async (req, res) => {
     const newCat = new db.Category(req.body);
     await newCat.save();
     res.json({ success: true, id: newCat._id });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/categories/:id', requireAdmin, async (req, res) => {
+  try {
+    const id = req.params.id;
+    await db.Category.findByIdAndDelete(id);
+    res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

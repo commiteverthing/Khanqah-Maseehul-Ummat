@@ -54,9 +54,6 @@
         <li data-tab="tab-notifications">
           <i class="fas fa-bell"></i> <span>Push Alerts</span>
         </li>
-        <li data-tab="tab-categories">
-          <i class="fas fa-tags"></i> <span>Categories</span>
-        </li>
       </ul>
 
 
@@ -70,12 +67,21 @@
 
     <!-- Main Content -->
     <main class="admin-main">
+      <div class="admin-top-header">
+        <div class="greeting">
+          <h2>As-salamu alaykum, <strong>Admin</strong></h2>
+          <p id="admin-date">Monday, 04 Rajab 1445</p>
+        </div>
+        <div class="profile-area">
+          <div class="profile-icon"><i class="fas fa-user-shield"></i></div>
+        </div>
+      </div>
       
       <!-- DASHBOARD TAB -->
       <section id="tab-dashboard" class="admin-tab active">
         <h1 style="margin-bottom: 2rem;">Overview</h1>
         
-        <div class="stats-grid">
+        <div class="stats-grid stagger-1">
           <div class="stat-card">
             <div class="stat-icon" style="background:#dcfce7; color:#166534;"><i class="fas fa-headphones"></i></div>
             <div class="stat-info">
@@ -106,7 +112,7 @@
           </div>
         </div>
 
-        <div class="admin-card">
+        <div class="admin-card stagger-2">
           <h3>Welcome, Admin</h3>
           <p style="color:var(--admin-text-muted); line-height:1.6;">
             Manage your content, answer spiritual questions, and push notifications to the community. 
@@ -118,7 +124,7 @@
       <!-- Bayans Tab -->
       <section id="tab-bayans" class="admin-tab">
         <h1 style="margin-bottom: 2rem;">Manage Bayans</h1>
-        <div class="admin-card">
+        <div class="admin-card stagger-1">
           <h3 style="margin-bottom: 1.5rem;">Add New Audio Bayan</h3>
           <div class="form-group">
             <label class="form-label">Title</label>
@@ -133,7 +139,7 @@
           </div>
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
             <div class="form-group">
-              <label class="form-label">Category <a href="javascript:void(0)" onclick="openCatModal()" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
+              <label class="form-label">Category <a href="javascript:void(0)" onclick="openCatModal('bayan')" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
               <select id="add-bayan-cat" class="form-input">
 
                 <option value="Tasawwuf">Tasawwuf</option>
@@ -152,7 +158,7 @@
           <button class="btn-primary" onclick="addBayan()"><i class="fas fa-plus"></i> Publish Bayan</button>
         </div>
 
-        <div class="admin-card">
+        <div class="admin-card stagger-2">
           <h3 style="margin-bottom: 1.5rem;">Existing Library</h3>
           <div class="table-container">
             <table class="admin-table">
@@ -187,7 +193,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Category <a href="javascript:void(0)" onclick="openCatModal()" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
+            <label class="form-label">Category <a href="javascript:void(0)" onclick="openCatModal('video')" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
             <select id="add-video-cat" class="form-input"></select>
           </div>
 
@@ -232,15 +238,11 @@
             <textarea id="add-course-desc" placeholder="Details about course content..." class="form-input" rows="3"></textarea>
           </div>
           <div class="form-group">
-            <label class="form-label">Category <a href="javascript:void(0)" onclick="openCatModal()" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
+            <label class="form-label">Category <a href="javascript:void(0)" onclick="openCatModal('course')" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
             <select id="add-course-cat" class="form-input"></select>
           </div>
 
           <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
-            <div class="form-group">
-              <label class="form-label">Icon Emoji</label>
-              <input type="text" id="add-course-icon" placeholder="📚" class="form-input">
-            </div>
             <div class="form-group">
               <label class="form-label">Status</label>
               <input type="text" id="add-course-status" placeholder="Ongoing / Completed" class="form-input">
@@ -253,6 +255,11 @@
               <label class="form-label">Location</label>
               <input type="text" id="add-course-loc" placeholder="e.g. Online" class="form-input">
             </div>
+          </div>
+          
+          <div class="form-group" style="margin-bottom: 2rem;">
+            <label class="form-label">Course Thumbnail (Optional - Max 2MB)</label>
+            <input type="file" id="add-course-thumbnail" accept="image/*" class="form-input" style="padding: 10px;">
           </div>
 
           <button class="btn-primary" onclick="addCourse()"><i class="fas fa-plus"></i> Launch Program</button>
@@ -299,7 +306,7 @@
           </div>
           <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
             <div class="form-group">
-              <label class="form-label">Severity Type <a href="javascript:void(0)" onclick="openCatModal()" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
+              <label class="form-label">Severity Type <a href="javascript:void(0)" onclick="openCatModal('notification')" style="font-size:0.75rem; color:var(--admin-primary); margin-left:8px;">(+ New)</a></label>
               <select id="add-notif-type" class="form-input">
 
                 <option value="general">General</option>
@@ -330,42 +337,13 @@
         </div>
       </section>
 
-      <!-- Categories Tab -->
-      <section id="tab-categories" class="admin-tab">
-        <h1 style="margin-bottom: 2rem;">Manage Categories</h1>
-        <div class="admin-card">
-          <h3 style="margin-bottom: 1.5rem;">Create New Category</h3>
-          <div style="display:grid; grid-template-columns: 1fr 1fr 100px; gap: 1.5rem;">
-            <div class="form-group">
-              <label class="form-label">Category Name</label>
-              <input type="text" id="add-cat-name" placeholder="e.g. Fiqh" class="form-input">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Icon / Emoji</label>
-              <input type="text" id="add-cat-icon" placeholder="e.g. 📖" class="form-input">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Order</label>
-              <input type="number" id="add-cat-order" value="0" class="form-input">
-            </div>
-          </div>
-          <button class="btn-primary" onclick="addCategory()"><i class="fas fa-plus"></i> Save Category</button>
-        </div>
-
-        <div class="admin-card">
-          <h3 style="margin-bottom: 1.5rem;">Existing Categories</h3>
-          <div class="table-container">
-            <table class="admin-table">
-              <thead><tr><th>Name</th><th>Icon</th><th>Order</th><th style="width: 80px;">Action</th></tr></thead>
-              <tbody id="table-categories"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+<!-- Category Tab Removed -->
 
     </main>
   </div>
 
+  <!-- Toast Notification Container -->
+  <div id="admin-toast-container"></div>
 
   <script src="js/admin.js"></script>
 
@@ -383,10 +361,14 @@
         <label class="form-label">Icon (Emoji)</label>
         <input type="text" id="quick-cat-icon" placeholder="e.g. 📊" class="form-input">
       </div>
-      
-      <div style="display:flex; gap: 1rem; margin-top: 1rem;">
-        <button class="btn-primary" onclick="submitQuickAddCategory()" style="flex:1; justify-content:center;">Add Now</button>
-        <button class="btn-logout" onclick="closeCatModal()" style="flex:1;">Cancel</button>
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
+        <button class="btn-del" onclick="closeCatModal()">Cancel</button>
+        <button class="btn-primary" onclick="submitQuickAddCategory()">Add Category</button>
+      </div>
+
+      <div style="margin-top:2rem; border-top:1px solid #eee; padding-top:1rem;">
+        <h4 style="font-size:0.75rem; color:var(--admin-secondary); margin-bottom:1rem; text-transform:uppercase;">Manage Existing</h4>
+        <div id="quick-cat-list" style="max-height:150px; overflow-y:auto; border-radius:8px;"></div>
       </div>
     </div>
   </div>

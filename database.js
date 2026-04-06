@@ -20,13 +20,13 @@ async function initDb() {
     const categoryCount = await Category.countDocuments();
     if (categoryCount === 0) {
       await Category.insertMany([
-        { name: 'Tasawwuf', icon: '✦', order: 1 },
-        { name: 'Ibaadat', icon: '🕌', order: 2 },
-        { name: 'Akhlaq', icon: '🌿', order: 3 },
-        { name: 'Quran', icon: '📖', order: 4 },
-        { name: 'Ramadan', icon: '🌙', order: 5 },
-        { name: 'Islah', icon: '💫', order: 6 },
-        { name: 'General', icon: '❓', order: 7 }
+        { name: 'Tasawwuf', icon: '✨', order: 1, type: 'bayan' },
+        { name: 'Ibaadat', icon: '🕌', order: 2, type: 'bayan' },
+        { name: 'Akhlaq', icon: '🌿', order: 3, type: 'bayan' },
+        { name: 'Quran', icon: '📖', order: 4, type: 'bayan' },
+        { name: 'Ramadan', icon: '🌙', order: 5, type: 'bayan' },
+        { name: 'Islah', icon: '💫', order: 6, type: 'bayan' },
+        { name: 'General', icon: '❓', order: 7, type: 'bayan' }
       ]);
       console.log('Initial categories seeded');
     }
